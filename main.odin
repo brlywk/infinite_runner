@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:mem"
 import rl "vendor:raylib"
 
 /*
@@ -17,23 +18,25 @@ GAME_SPEED :: 200.0
     Structs
 */
 
+
 Player :: struct {
-	position:    rl.Vector2,
-	velocity:    rl.Vector2,
-	size:        rl.Vector2,
-	jumping:     bool,
-	jump_sound:  rl.Sound,
-	death_sound: rl.Sound,
-	sprite:      rl.Texture2D,
+	using position:    rl.Vector2,
+	current_animation: ^Animation,
+	run_animation:     Animation,
+	jump_animation:    Animation,
+	velocity:          rl.Vector2,
+	jumping:           bool,
+	jump_sound:        rl.Sound,
+	death_sound:       rl.Sound,
 }
 
 Wall :: struct {
-	position: rl.Vector2,
-	size:     rl.Vector2,
-	active:   bool,
+	using position: rl.Vector2,
+	size:           rl.Vector2,
+	active:         bool,
 }
 
-GameState :: struct {
+Game_State :: struct {
 	player:      Player,
 	walls:       [dynamic]Wall,
 	score:       i32,
@@ -45,7 +48,28 @@ GameState :: struct {
     Main
 */
 
+// check_tracking_allocator returns whether alloc has leaked any memory yet and prints the result to stdout.
+// Parameter reset can be used to also reset the allocator if required.
+check_tracking_allocator :: proc(alloc: ^mem.Tracking_Allocator, reset: bool = false) -> bool {
+	for _, leak in alloc.allocation_map {
+		fmt.printf("==== %v leaked %m\n", leak.location, leak.size)
+	}
+
+	if reset {
+		mem.tracking_allocator_destroy(alloc)
+	}
+
+	return len(alloc.allocation_map) > 0
+}
+
 main :: proc() {
+	// tracking allocator for learning purposes
+	track: mem.Tracking_Allocator
+	mem.tracking_allocator_init(&track, context.allocator)
+	// defer mem.tracking_allocator_destroy(&track) - see comment below
+	context.allocator = mem.tracking_allocator(&track)
+	defer check_tracking_allocator(&track, true) // use helper to destroy allocator
+
 	// main window
 	rl.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Infinite Runner")
 	defer rl.CloseWindow()
@@ -56,21 +80,30 @@ main :: proc() {
 
 	rl.SetTargetFPS(60)
 
-	game := GameState {
+	// animations for player
+	player_run_anim := load_animation("sprites/player/run.png", 32, 32, 6, 0.75, true)
+	player_jump_anim := load_animation("sprites/player/jump.png", 32, 36, 4, 0.5, false)
+
+	game := Game_State {
 		player = {
-			position    = {100, SCREEN_HEIGHT - 50 - 32}, // player size is 32x32
-			velocity    = {0, 0},
-			size        = {32, 32},
-			jumping     = false,
-			jump_sound  = rl.LoadSound("sounds/jump.mp3"),
-			death_sound = rl.LoadSound("sounds/hit.mp3"),
-			sprite      = rl.LoadTexture("sprites/player/player.png"),
+			position          = {100, SCREEN_HEIGHT - 50 - 32}, // player size is 32x32
+			velocity          = {0, 0},
+			jumping           = false,
+			jump_sound        = rl.LoadSound("sounds/jump.mp3"),
+			death_sound       = rl.LoadSound("sounds/hit.mp3"),
+			run_animation     = player_run_anim,
+			jump_animation    = player_jump_anim,
+			current_animation = &player_run_anim,
 		},
 		walls = make([dynamic]Wall),
 		score = 0,
 		game_over = false,
 		spawn_timer = 0,
 	}
+
+	// set volume of sounds
+	rl.SetSoundVolume(game.player.jump_sound, 0.5)
+	rl.SetSoundVolume(game.player.death_sound, 0.5)
 
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
@@ -83,7 +116,7 @@ main :: proc() {
 			}
 		}
 
-		draw_game(&game)
+		draw_game(&game, dt)
 	}
 
 	delete(game.walls)
@@ -93,24 +126,26 @@ main :: proc() {
     Functions
 */
 
-update_game :: proc(game: ^GameState, dt: f32) {
+update_game :: proc(game: ^Game_State, dt: f32) {
 	// input
 	if rl.IsKeyPressed(.SPACE) && !game.player.jumping {
 		game.player.velocity.y = JUMP_FORCE
 		game.player.jumping = true
 		rl.PlaySound(game.player.jump_sound)
+		switch_animation(&game.player, &game.player.jump_animation)
 	}
 
 	// player "physics"
 	game.player.velocity.y += GRAVITY * dt
-	game.player.position.y += game.player.velocity.y * dt
+	game.player.y += game.player.velocity.y * dt
 
-	// collision
-	ground_y := SCREEN_HEIGHT - 50 - game.player.size.y
-	if game.player.position.y >= ground_y {
-		game.player.position.y = ground_y
+	// collision, dt
+	ground_y := SCREEN_HEIGHT - 50 - get_animation_height(game.player.current_animation^)
+	if game.player.y >= ground_y {
+		game.player.y = ground_y
 		game.player.velocity.y = 0
 		game.player.jumping = false
+		switch_animation(&game.player, &game.player.run_animation)
 	}
 
 	// spawn walls
@@ -149,7 +184,7 @@ update_game :: proc(game: ^GameState, dt: f32) {
 	}
 }
 
-spawn_wall :: proc(game: ^GameState) {
+spawn_wall :: proc(game: ^Game_State) {
 	wall := Wall {
 		position = {SCREEN_WIDTH, SCREEN_HEIGHT - 50 - 60},
 		size     = {30, 60},
@@ -161,15 +196,20 @@ spawn_wall :: proc(game: ^GameState) {
 
 // check if player collides with wall
 check_collision :: proc(player: Player, wall: Wall) -> bool {
+	player_size := rl.Vector2 {
+		get_animation_width(player.current_animation^),
+		get_animation_height(player.current_animation^),
+	}
+
 	return(
-		player.position.x < wall.position.x + wall.size.x &&
-		player.position.x + player.size.x > wall.position.x &&
-		player.position.y < wall.position.y + wall.size.y &&
-		player.position.y + player.size.y > wall.position.y \
+		player.x < wall.position.x + wall.size.x &&
+		player.x + player_size.x > wall.position.x &&
+		player.y < wall.position.y + wall.size.y &&
+		player.y + player_size.y > wall.position.y \
 	)
 }
 
-draw_game :: proc(game: ^GameState) {
+draw_game :: proc(game: ^Game_State, dt: f32) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.SKYBLUE)
 	defer rl.EndDrawing()
@@ -178,7 +218,7 @@ draw_game :: proc(game: ^GameState) {
 	rl.DrawRectangle(0, SCREEN_HEIGHT - 50, SCREEN_WIDTH, 50, rl.GREEN)
 
 	// player
-	rl.DrawTextureV(game.player.sprite, game.player.position, rl.WHITE)
+	play_animation(game.player.current_animation, game.player.position, dt)
 
 	// walls
 	for wall in game.walls {
@@ -204,7 +244,7 @@ draw_game :: proc(game: ^GameState) {
 	}
 }
 
-restart_game :: proc(game: ^GameState) {
+restart_game :: proc(game: ^Game_State) {
 	game.player.position = {100, SCREEN_HEIGHT - 100}
 	game.player.velocity = {100, 100}
 	game.player.jumping = false
