@@ -11,8 +11,8 @@ Position :: struct {
 	y: i32,
 }
 
-// A single frame in a sprite sheet. 
-SpriteFrame :: struct {
+// General information about a sprite.
+Sprite_Info :: struct {
 	width:  i32,
 	height: i32,
 }
@@ -29,7 +29,7 @@ SpriteFrame :: struct {
 //  - pos: x and y position of a sprite on the screen.
 //
 // Returns: raylib.Rectangle
-to_rect :: proc(sprite_frame: SpriteFrame, pos: Position) -> Rect {
+to_rect :: proc(sprite_frame: Sprite_Info, pos: Position) -> Rect {
 	return Rect {
 		x = f32(pos.x),
 		y = f32(pos.y),

@@ -72,7 +72,11 @@ main :: proc() {
 	//
 	game := Game {
 		state = .Playing,
+		font  = load_font(.Independent_Modern),
 	}
+
+	// TODO: Delete
+	sprite_handle := load_texture(.Floor)
 
 	// GAME LOOP
 	//
@@ -90,6 +94,8 @@ main :: proc() {
 
 			// vvv actual drawing instructions go here :P vvv
 			game_draw(game)
+			rl.DrawTextEx(game.font, "Just a test", {0, 24}, 8.0, 0.0, rl.WHITE)
+			rl.DrawTexture(sprite_handle.texture, 0, 64, rl.WHITE)
 		}
 
 		// ...and upscale that to the window dimensions

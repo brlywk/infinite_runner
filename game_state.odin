@@ -1,5 +1,7 @@
 package main
 
+import rl "vendor:raylib"
+
 //
 // Structs
 //
@@ -16,6 +18,7 @@ Game_State :: enum {
 // The game struct. Yes, *THE* game struct.
 Game :: struct {
 	state: Game_State,
+	font:  rl.Font,
 }
 
 
