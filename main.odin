@@ -18,9 +18,14 @@ Rect :: rl.Rectangle
 // Constants
 //
 
+WINDOW_NAME :: "Infinite Runner"
+
 // resolution the game should be rendered with
-GAME_WIDTH :: 480
-GAME_HEIGHT :: 270
+GAME_WIDTH :: 320
+GAME_HEIGHT :: 240
+
+// initial scaling for window dimensions
+INIT_SCALING :: 3
 
 
 //
@@ -54,11 +59,20 @@ main :: proc() {
 
 	// RAYLIB
 	//
-	rl.InitWindow(GAME_WIDTH * 2, GAME_HEIGHT * 2, "Infinite Runner")
+	rl.InitWindow(GAME_WIDTH * INIT_SCALING, GAME_HEIGHT * INIT_SCALING, WINDOW_NAME)
 	defer rl.CloseWindow()
 
 	render_target := rl.LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT)
 	defer rl.UnloadRenderTexture(render_target)
+
+	rl.SetTargetFPS(60)
+	rl.SetWindowState({.WINDOW_RESIZABLE, .VSYNC_HINT})
+
+	// GAME INIT STUFF
+	//
+	game := Game {
+		state = .Playing,
+	}
 
 	// GAME LOOP
 	//
@@ -66,6 +80,7 @@ main :: proc() {
 		defer free_all(context.temp_allocator)
 
 		// UPDATE
+		game_update(&game)
 
 		// DRAW
 		// we draw to the render texture first...
@@ -74,8 +89,7 @@ main :: proc() {
 			defer rl.EndTextureMode()
 
 			// vvv actual drawing instructions go here :P vvv
-			rl.DrawRectangle(0, 0, 32, 32, rl.WHITE)
-			rl.DrawRectangle(32, 32, 32, 32, rl.WHITE)
+			game_draw(game)
 		}
 
 		// ...and upscale that to the window dimensions
@@ -86,14 +100,16 @@ main :: proc() {
 			window_width := f32(rl.GetScreenWidth())
 			window_height := f32(rl.GetScreenHeight())
 			scale := min(window_width / GAME_WIDTH, window_height / GAME_HEIGHT)
+			// log.debug("scale:", scale)
 
 			// rect to use for upscaling
 			render_rect := Rect {
-				x      = (window_width - GAME_WIDTH * 2) / 2,
-				y      = (window_height - GAME_HEIGHT * 2) / 2,
+				x      = 0,
+				y      = 0,
 				width  = GAME_WIDTH * scale,
 				height = GAME_HEIGHT * scale,
 			}
+			// log.debug("render_rect", render_rect)
 
 			// rect to use for flipping the render texture b/c OpenGL
 			flip_rect := Rect {
@@ -102,6 +118,7 @@ main :: proc() {
 				width  = GAME_WIDTH,
 				height = -GAME_HEIGHT, // we need to flip the y-axis 
 			}
+			// log.debug("flip_rect", flip_rect)
 
 			rl.ClearBackground(rl.BLACK)
 			rl.DrawTexturePro(render_target.texture, flip_rect, render_rect, {0, 0}, 0.0, rl.WHITE)
