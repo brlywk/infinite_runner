@@ -20,6 +20,7 @@ FONT_DEFAULT_SIZE :: 8
 Asset_Name :: union {
 	Texture_Name,
 	Font_Name,
+	Sound_Name,
 }
 
 
@@ -43,6 +44,30 @@ Texture_Name :: enum {
 Font_Name :: enum {
 	Independent_Modern,
 }
+
+Sound_Name :: union {
+	Sound_UI_Name,
+	Sound_Player_Name,
+}
+
+Sound_UI_Name :: enum {
+	Click,
+	Select_01,
+	Select_02,
+}
+
+Sound_Player_Name :: enum {
+	Attack,
+	Jump,
+	Hit,
+	Step_01,
+	Step_02,
+	Step_03,
+	Step_04,
+	Step_05,
+}
+
+Music_Name :: enum {}
 
 
 //
@@ -133,4 +158,74 @@ fonts := [Font_Name]Asset {
 		type = Font_Asset{default_font_size = FONT_DEFAULT_SIZE},
 	},
 }
+
+
+//
+// Sounds
+//
+
+
+ui_sounds := [Sound_UI_Name]Asset {
+	.Click = {
+		path = "assets/sounds/ui/button_click_01.wav",
+		data = #load("assets/sounds/ui/button_click_01.wav"),
+		type = Sound_Asset{},
+	},
+	.Select_01 = {
+		path = "assets/sounds/ui/button_select_01.wav",
+		data = #load("assets/sounds/ui/button_select_01.wav"),
+		type = Sound_Asset{},
+	},
+	.Select_02 = {
+		path = "assets/sounds/ui/button_select_02.wav",
+		data = #load("assets/sounds/ui/button_select_02.wav"),
+		type = Sound_Asset{},
+	},
+}
+
+
+player_sounds := [Sound_Player_Name]Asset {
+	.Hit = {
+		path = "assets/sounds/player/hit_01.wav",
+		data = #load("assets/sounds/player/hit_01.wav"),
+		type = Sound_Asset{},
+	},
+	.Jump = {
+		path = "assets/sounds/player/jump_01.wav",
+		data = #load("assets/sounds/player/jump_01.wav"),
+		type = Sound_Asset{},
+	},
+	.Attack = {
+		path = "assets/sounds/player/attack_01.wav",
+		data = #load("assets/sounds/player/attack_01.wav"),
+		type = Sound_Asset{},
+	},
+	.Step_01 = {
+		path = "assets/sounds/player/step_01.wav",
+		data = #load("assets/sounds/player/step_01.wav"),
+		type = Sound_Asset{},
+	},
+	.Step_02 = {
+		path = "assets/sounds/player/step_02.wav",
+		data = #load("assets/sounds/player/step_02.wav"),
+		type = Sound_Asset{},
+	},
+	.Step_03 = {
+		path = "assets/sounds/player/step_03.wav",
+		data = #load("assets/sounds/player/step_03.wav"),
+		type = Sound_Asset{},
+	},
+	.Step_04 = {
+		path = "assets/sounds/player/step_04.wav",
+		data = #load("assets/sounds/player/step_04.wav"),
+		type = Sound_Asset{},
+	},
+	.Step_05 = {
+		path = "assets/sounds/player/step_05.wav",
+		data = #load("assets/sounds/player/step_05.wav"),
+		type = Sound_Asset{},
+	},
+}
+
+music := [Music_Name]Asset{}
 

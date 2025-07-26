@@ -70,13 +70,15 @@ main :: proc() {
 
 	// GAME INIT STUFF
 	//
-	game := Game {
-		state = .Playing,
-		font  = load_font(.Independent_Modern),
-	}
+	asset_cache := asset_cache_init()
+	defer asset_cache_destroy(&asset_cache)
 
-	// TODO: Delete
-	sprite_handle := load_texture(.Floor)
+	game := Game {
+		state        = .Playing,
+		assets       = asset_cache,
+		default_font = get_asset(asset_cache, Font_Name.Independent_Modern),
+		floor        = get_asset(asset_cache, Texture_Name.Floor),
+	}
 
 	// GAME LOOP
 	//
@@ -94,8 +96,8 @@ main :: proc() {
 
 			// vvv actual drawing instructions go here :P vvv
 			game_draw(game)
-			rl.DrawTextEx(game.font, "Just a test", {0, 24}, 8.0, 0.0, rl.WHITE)
-			rl.DrawTexture(sprite_handle.texture, 0, 64, rl.WHITE)
+			rl.DrawTextEx(game.default_font, "Just a test", {0, 24}, 8.0, 0.0, rl.WHITE)
+			rl.DrawTexture(game.floor.texture, 0, 64, rl.WHITE)
 		}
 
 		// ...and upscale that to the window dimensions

@@ -17,8 +17,10 @@ Game_State :: enum {
 
 // The game struct. Yes, *THE* game struct.
 Game :: struct {
-	state: Game_State,
-	font:  rl.Font,
+	state:        Game_State,
+	assets:       Asset_Cache,
+	default_font: rl.Font,
+	floor:        Texture_Handle, // just one floor type for now
 }
 
 
