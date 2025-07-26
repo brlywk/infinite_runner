@@ -1,4 +1,15 @@
-package main
+package sprite
+
+import rl "vendor:raylib"
+
+//
+// Types
+//
+
+
+Vec2 :: rl.Vector2
+Rect :: rl.Rectangle
+
 
 //
 // Structs
@@ -12,10 +23,11 @@ Position :: struct {
 }
 
 // General information about a sprite.
-Sprite_Info :: struct {
+Info :: struct {
 	width:  i32,
 	height: i32,
 }
+
 
 // 
 // Procs
@@ -29,7 +41,7 @@ Sprite_Info :: struct {
 //  - pos: x and y position of a sprite on the screen.
 //
 // Returns: raylib.Rectangle
-to_rect :: proc(sprite_frame: Sprite_Info, pos: Position) -> Rect {
+to_rect :: proc(sprite_frame: Info, pos: Position) -> Rect {
 	return Rect {
 		x = f32(pos.x),
 		y = f32(pos.y),

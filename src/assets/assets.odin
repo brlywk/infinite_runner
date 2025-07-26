@@ -1,5 +1,6 @@
-package main
+package assets
 
+import sprite "../sprite"
 import "core:fmt"
 import rl "vendor:raylib"
 
@@ -17,7 +18,7 @@ FILE_TYPE_WAV :: ".wav"
 //
 
 
-Asset_Cache :: struct {
+Cache :: struct {
 	textures:      map[Texture_Name]Texture_Handle,
 	fonts:         map[Font_Name]rl.Font,
 	ui_sounds:     map[Sound_UI_Name]rl.Sound,
@@ -29,33 +30,27 @@ Asset_Cache :: struct {
 Asset :: struct {
 	path: string,
 	data: []u8,
-	type: Asset_Type,
+	type: Type,
 }
 
-Asset_Type :: union {
-	Texture_Asset,
-	Music_Asset,
-	Sound_Asset,
-	Font_Asset,
+Type :: union {
+	Texture,
+	Music,
+	Sound,
+	Font,
 }
 
-Sound_Asset :: struct {}
+Sound :: struct {}
 
-Music_Asset :: struct {}
+Music :: struct {}
 
-Texture_Asset :: struct {
-	sprite:    Sprite_Info,
-	animation: Animation,
+Texture :: struct {
+	sprite_info: sprite.Info,
+	animation:   sprite.Animation,
 }
 
-Font_Asset :: struct {
+Font :: struct {
 	default_font_size: i32,
-}
-
-Texture_Handle :: struct {
-	texture:   rl.Texture2D,
-	sprite:    Sprite_Info,
-	animation: Animation,
 }
 
 
@@ -64,8 +59,11 @@ Texture_Handle :: struct {
 //
 
 
-asset_cache_init :: proc() -> Asset_Cache {
-	cache := Asset_Cache{}
+// Creates a new Asset_Cache and loads all existing assets into it.
+//
+// Note: All assets are defined in asset_files.odin.
+cache_init :: proc() -> Cache {
+	cache := Cache{}
 
 	// texture loading
 	for _, k in textures {
@@ -95,7 +93,7 @@ asset_cache_init :: proc() -> Asset_Cache {
 }
 
 
-asset_cache_destroy :: proc(asset_cache: ^Asset_Cache) {
+cache_destroy :: proc(asset_cache: ^Cache) {
 	// Textures
 	for _, th in asset_cache.textures {
 		rl.UnloadTexture(th.texture)
@@ -128,38 +126,8 @@ asset_cache_destroy :: proc(asset_cache: ^Asset_Cache) {
 	delete(asset_cache.music_tracks)
 }
 
-
-// Load texture by Asset_Name.
-//
-// Panics if name is not a Texture_Name.
-load_texture :: proc(texture_name: Texture_Name) -> Texture_Handle {
-	texture_asset := textures[texture_name]
-	texture_info := texture_asset.type.(Texture_Asset)
-
-	image := rl.LoadImageFromMemory(
-		FILE_TYPE_PNG,
-		// NOTE: (b/c otherwise I forget and wonder again in the future)
-		// We get a reference to the first element of the slice, b/c in Odin a slice is a 
-		// struct with a pointer to the array, length and capacity, but Raylib is in C,
-		// and in C an array is just a pointer to the first element of that array...
-		// so we need to get a pointer to the first element of our Odin slice!
-		&texture_asset.data[0],
-		i32(len(texture_asset.data)),
-	)
-	defer rl.UnloadImage(image)
-
-	texture := rl.LoadTextureFromImage(image)
-	rl.SetTextureFilter(texture, .BILINEAR)
-	rl.SetTextureWrap(texture, .CLAMP)
-
-	return Texture_Handle {
-		texture = texture,
-		sprite = texture_info.sprite,
-		animation = texture_info.animation,
-	}
-}
-
-get_asset :: proc {
+// Retrieve an asset from the asset cache.
+get :: proc {
 	get_texture,
 	get_font,
 	get_sound_player,
@@ -167,7 +135,7 @@ get_asset :: proc {
 	get_music,
 }
 
-get_texture :: proc(asset_cache: Asset_Cache, texture_name: Texture_Name) -> Texture_Handle {
+get_texture :: proc(asset_cache: Cache, texture_name: Texture_Name) -> Texture_Handle {
 	if texture, exists := asset_cache.textures[texture_name]; exists {
 		return texture
 	}
@@ -176,48 +144,14 @@ get_texture :: proc(asset_cache: Asset_Cache, texture_name: Texture_Name) -> Tex
 	panic(p)
 }
 
-get_font :: proc(asset_cache: Asset_Cache, font_name: Font_Name) -> rl.Font {
-	if font, exists := asset_cache.fonts[font_name]; exists {
-		return font
-	}
-
-	p := fmt.tprintf("font does not exist: %v", font_name)
-	panic(p)
-}
-
-get_sound_player :: proc(asset_cache: Asset_Cache, player_sound: Sound_Player_Name) -> rl.Sound {
-	if sound, exists := asset_cache.player_sounds[player_sound]; exists {
-		return sound
-	}
-
-	p := fmt.tprintf("player sound does not exists: %v", player_sound)
-	panic(p)
-}
-
-get_sound_ui :: proc(asset_cache: Asset_Cache, ui_sound: Sound_UI_Name) -> rl.Sound {
-	if sound, exists := asset_cache.ui_sounds[ui_sound]; exists {
-		return sound
-	}
-
-	p := fmt.tprintf("ui sound does not exists: %v", ui_sound)
-	panic(p)
-}
-
-get_music :: proc(asset_cache: Asset_Cache, music_name: Music_Name) -> rl.Music {
-	if music, exists := asset_cache.music_tracks[music_name]; exists {
-		return music
-	}
-
-	p := fmt.tprintf("music track does not exist: %v", music_name)
-	panic(p)
-}
 
 // Loads font by Asset_Name.
 //
 // Panics if name is not a Font_Name or the asset's type of a loaded Asset is not Font_Asset.
+@(private)
 load_font :: proc(font_name: Font_Name) -> rl.Font {
 	font_asset := fonts[font_name]
-	font_info := font_asset.type.(Font_Asset)
+	font_info := font_asset.type.(Font)
 
 	font := rl.LoadFontFromMemory(
 		FILE_TYPE_TTF,
@@ -231,7 +165,17 @@ load_font :: proc(font_name: Font_Name) -> rl.Font {
 	return font
 }
 
+get_font :: proc(asset_cache: Cache, font_name: Font_Name) -> rl.Font {
+	if font, exists := asset_cache.fonts[font_name]; exists {
+		return font
+	}
 
+	p := fmt.tprintf("font does not exist: %v", font_name)
+	panic(p)
+}
+
+
+@(private)
 load_sound :: proc(sound_name: Sound_Name) -> rl.Sound {
 	sound_asset: Asset = ---
 
@@ -252,8 +196,37 @@ load_sound :: proc(sound_name: Sound_Name) -> rl.Sound {
 	return sound
 }
 
+get_sound_player :: proc(asset_cache: Cache, player_sound: Sound_Player_Name) -> rl.Sound {
+	if sound, exists := asset_cache.player_sounds[player_sound]; exists {
+		return sound
+	}
+
+	p := fmt.tprintf("player sound does not exists: %v", player_sound)
+	panic(p)
+}
+
+get_sound_ui :: proc(asset_cache: Cache, ui_sound: Sound_UI_Name) -> rl.Sound {
+	if sound, exists := asset_cache.ui_sounds[ui_sound]; exists {
+		return sound
+	}
+
+	p := fmt.tprintf("ui sound does not exists: %v", ui_sound)
+	panic(p)
+}
+
+
+@(private)
 load_music :: proc(music_name: Music_Name) -> rl.Music {
 	// TODO: Implement!
 	return rl.Music{}
+}
+
+get_music :: proc(asset_cache: Cache, music_name: Music_Name) -> rl.Music {
+	if music, exists := asset_cache.music_tracks[music_name]; exists {
+		return music
+	}
+
+	p := fmt.tprintf("music track does not exist: %v", music_name)
+	panic(p)
 }
 
