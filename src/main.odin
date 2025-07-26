@@ -63,6 +63,9 @@ main :: proc() {
 	rl.InitWindow(GAME_WIDTH * INIT_SCALING, GAME_HEIGHT * INIT_SCALING, WINDOW_NAME)
 	defer rl.CloseWindow()
 
+	rl.InitAudioDevice()
+	defer rl.CloseAudioDevice()
+
 	render_target := rl.LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT)
 	defer rl.UnloadRenderTexture(render_target)
 
@@ -88,7 +91,7 @@ main :: proc() {
 			rl.BeginTextureMode(render_target)
 			defer rl.EndTextureMode()
 
-			game.draw(gg)
+			game.draw(&gg)
 		}
 
 		// ...and upscale that to the window dimensions
@@ -102,6 +105,7 @@ main :: proc() {
 			scale := min(window_width / GAME_WIDTH, window_height / GAME_HEIGHT)
 
 			// rect to use for upscaling
+			// TODO: When entering fullscreen, this needs to be centered
 			render_rect := Rect {
 				x      = 0,
 				y      = 0,

@@ -1,0 +1,75 @@
+package assets
+
+import rl "vendor:raylib"
+
+// 
+// Structs
+//
+
+Animation :: struct {
+	texture:            rl.Texture2D,
+	animation_info:     Animation_Info,
+	current_frame:      int,
+	animation_finished: bool,
+	timer:              f32,
+}
+
+
+Animation_Info :: struct {
+	frame_width:  i32,
+	frame_height: i32,
+	num_frames:   int,
+	duration:     f32,
+	repeats:      bool,
+}
+
+
+//
+// Procs
+//
+
+
+@(private)
+load_animation :: proc(animation_name: Animation_Name) -> Animation {
+	animation_asset := animations[animation_name]
+	animation_info := animation_asset.type.(Animation_Info)
+	texture := load_texture_data(animation_asset.data)
+
+	return Animation{texture = texture, animation_info = animation_info}
+}
+
+animation_rect :: proc(animation: ^Animation) -> rl.Rectangle {
+	return rl.Rectangle {
+		x = f32(animation.current_frame) * f32(animation.animation_info.frame_width),
+		y = 0,
+		width = f32(animation.animation_info.frame_width),
+		height = f32(animation.animation_info.frame_height),
+	}
+}
+
+animation_play :: proc(animation: ^Animation, pos: rl.Vector2) {
+	if !animation.animation_info.repeats && animation.animation_finished {
+		rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
+		return
+	}
+
+	animation.timer += rl.GetFrameTime()
+
+	frame_time := animation.animation_info.duration / f32(animation.animation_info.num_frames)
+	target_frame := int(animation.timer / frame_time)
+
+	if animation.animation_info.repeats {
+		animation.current_frame = target_frame % animation.animation_info.num_frames
+		if animation.timer >= animation.animation_info.duration do animation.timer = 0.0
+	} else {
+		if target_frame >= animation.animation_info.num_frames {
+			animation.current_frame = int(animation.animation_info.num_frames) - 1
+			animation.animation_finished = true
+		} else {
+			animation.current_frame = target_frame
+		}
+	}
+
+	rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
+}
+
