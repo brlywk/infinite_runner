@@ -53,7 +53,7 @@ init :: proc(width, height: i32) -> Game {
 	floor := assets.get(asset_cache, Texture_Name.Floor)
 
 	// player
-	player_animation := assets.get(asset_cache, Animation_Name.Player_Jump)
+	player_animation := assets.get(asset_cache, Animation_Name.Player_Run)
 	log.debug("player_animation", player_animation)
 	player_pos := Vec2{16.0, f32(height - floor.height - player_animation.texture.height)}
 
