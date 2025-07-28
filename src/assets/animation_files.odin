@@ -5,6 +5,7 @@ PLAYER_JUMP_ANIMATION_DURATION :: 0.25
 PLAYER_HURT_ANIMATION_DURATION :: 0.5
 PLAYER_DEATH_ANIMATION_DURATION :: 0.5
 
+
 Animation_Name :: enum {
 	// Player sprites
 	// Player_Idle,
@@ -14,6 +15,7 @@ Animation_Name :: enum {
 	// Player_Attack,
 	Player_Dead,
 }
+
 
 animations := [Animation_Name]Asset {
 	.Player_Run = {

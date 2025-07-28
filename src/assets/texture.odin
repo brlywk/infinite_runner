@@ -2,6 +2,10 @@ package assets
 
 import rl "vendor:raylib"
 
+
+Texture :: struct {}
+
+
 // Load texture by Asset_Name.
 //
 // Panics if name is not a Texture_Name.

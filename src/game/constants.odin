@@ -23,3 +23,6 @@ BUILDING_NAMES :: [?]assets.Texture_Name {
 }
 BUILDING_NUM :: len(BUILDING_NAMES)
 
+
+VEC2_ZERO :: Vec2{0, 0}
+

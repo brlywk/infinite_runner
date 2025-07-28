@@ -1,53 +1,65 @@
 package game
 
-import "../obstacle"
 import rl "vendor:raylib"
 
+
+DECO_BUILDING_TINT :: rl.Color{100, 100, 100, 255}
+
+
 //
-// Structs
+// UPDATE
 //
 
 
-// 
-// Procs
+playing_update :: proc(game: ^Game) {
+	dt := rl.GetFrameTime()
+	floor_y := y_floored(game^)
+
+
+	// player
+	player_update(&game.player, floor_y, dt)
+
+	// TODO:
+	// spawn obstacles
+	// check for player collision with obstacles
+	// animate background
+	// spawn occasional decorative buildings
+}
+
+
+//
+// DRAW
 //
 
 
 playing_draw :: proc(game: ^Game) {
 	// background 
-	draw_background(game^)
+	playing_draw_background(game^)
 
 	// floor
-	draw_floor(game^)
+	playing_draw_floor(game^)
 
 	// buildings
-	// TODO: Change
-	building := game.buildings[1]
+	// TODO: Change, just for test drawing
+	building := game.building_assets[1]
 	rl.DrawTexture(
 		building,
 		128,
 		game.screen_height - game.floor.height - building.height,
-		rl.WHITE,
+		DECO_BUILDING_TINT,
 	)
 
 	// obstacles
-	draw_obstacles(game^)
+	playing_draw_obstacles(game^)
 
 	// player
-	player_draw(game)
+	player_draw(game.player)
 
 	// ui
 }
 
-playing_update :: proc(game: ^Game) {
-	if rl.IsKeyDown(rl.KeyboardKey.SPACE) {
-		player_animation_rest(game)
-	}
-}
-
-
 @(private = "file")
-draw_floor :: proc(game: Game) {
+playing_draw_floor :: proc(game: Game) {
 	num_floor_tiles := int(game.screen_width / game.floor.width) + 2
 	floor_y := game.screen_height - game.floor.height
 
@@ -58,16 +70,16 @@ draw_floor :: proc(game: Game) {
 }
 
 @(private = "file")
-draw_background :: proc(game: Game) {
-	for bg in game.backgrounds {
+playing_draw_background :: proc(game: Game) {
+	for bg in game.background_assets {
 		rl.DrawTexture(bg.texture, 0, 0, rl.WHITE)
 	}
 }
 
 @(private = "file")
-draw_obstacles :: proc(game: Game) {
+playing_draw_obstacles :: proc(game: Game) {
 	for o in game.obstacles {
-		obstacle.draw(o)
+		obstacle_draw(o)
 	}
 }
 

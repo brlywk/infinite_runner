@@ -73,3 +73,9 @@ animation_play :: proc(animation: ^Animation, pos: rl.Vector2) {
 	rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
 }
 
+animation_reset :: proc(animation: ^Animation) {
+	animation.current_frame = 0
+	animation.animation_finished = false
+	animation.timer = 0.0
+}
+

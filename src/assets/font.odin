@@ -2,6 +2,12 @@ package assets
 
 import rl "vendor:raylib"
 
+
+Font :: struct {
+	default_font_size: i32,
+}
+
+
 // Loads font by Asset_Name.
 //
 // Panics if name is not a Font_Name or the asset's type of a loaded Asset is not Font_Asset.

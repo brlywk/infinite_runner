@@ -2,6 +2,10 @@ package assets
 
 import rl "vendor:raylib"
 
+
+Sound :: struct {}
+
+
 @(private)
 load_sound :: proc(sound_name: Sound_Name) -> rl.Sound {
 	sound_asset := sounds[sound_name]

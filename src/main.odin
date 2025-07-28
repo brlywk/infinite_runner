@@ -1,5 +1,6 @@
 package main
 
+import "assets"
 import "base:runtime"
 import "core:log"
 import "core:math/rand"
@@ -74,6 +75,13 @@ main :: proc() {
 
 	// GAME INIT
 	//
+	asset_cache := assets.cache_init()
+	defer assets.cache_destroy(&asset_cache)
+	// we need assets everywhere, so let's make the completly sane decision to
+	// save a reference to the asset_cache in our implicit context struct...
+	// what could ever go wrong?
+	context.user_ptr = &asset_cache
+
 	gg := game.init(GAME_WIDTH, GAME_HEIGHT)
 	defer game.destroy(&gg)
 

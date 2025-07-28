@@ -39,16 +39,6 @@ Type :: union {
 	Font,
 }
 
-Sound :: struct {}
-
-Music :: struct {}
-
-Font :: struct {
-	default_font_size: i32,
-}
-
-Texture :: struct {}
-
 
 //
 // Procs
@@ -127,6 +117,8 @@ cache_destroy :: proc(asset_cache: ^Cache) {
 }
 
 // Retrieve an asset from the asset cache.
+//
+// Note: Prefer using get over the respective get_* method.
 get :: proc {
 	get_animation,
 	get_texture,
@@ -135,8 +127,8 @@ get :: proc {
 	get_music,
 }
 
-get_animation :: proc(asset_cache: Cache, animation_name: Animation_Name) -> Animation {
-	if animation, exists := asset_cache.animations[animation_name]; exists {
+get_animation :: proc(asset_cache: ^Cache, animation_name: Animation_Name) -> ^Animation {
+	if animation, exists := &asset_cache.animations[animation_name]; exists {
 		return animation
 	}
 
@@ -144,7 +136,7 @@ get_animation :: proc(asset_cache: Cache, animation_name: Animation_Name) -> Ani
 	panic(p)
 }
 
-get_texture :: proc(asset_cache: Cache, texture_name: Texture_Name) -> rl.Texture2D {
+get_texture :: proc(asset_cache: ^Cache, texture_name: Texture_Name) -> rl.Texture2D {
 	if texture, exists := asset_cache.textures[texture_name]; exists {
 		return texture
 	}
@@ -153,7 +145,7 @@ get_texture :: proc(asset_cache: Cache, texture_name: Texture_Name) -> rl.Textur
 	panic(p)
 }
 
-get_font :: proc(asset_cache: Cache, font_name: Font_Name) -> rl.Font {
+get_font :: proc(asset_cache: ^Cache, font_name: Font_Name) -> rl.Font {
 	if font, exists := asset_cache.fonts[font_name]; exists {
 		return font
 	}
@@ -162,7 +154,7 @@ get_font :: proc(asset_cache: Cache, font_name: Font_Name) -> rl.Font {
 	panic(p)
 }
 
-get_sound :: proc(asset_cache: Cache, sound_name: Sound_Name) -> rl.Sound {
+get_sound :: proc(asset_cache: ^Cache, sound_name: Sound_Name) -> rl.Sound {
 	if sound, exists := asset_cache.sounds[sound_name]; exists {
 		return sound
 	}
@@ -171,7 +163,7 @@ get_sound :: proc(asset_cache: Cache, sound_name: Sound_Name) -> rl.Sound {
 	panic(p)
 }
 
-get_music :: proc(asset_cache: Cache, music_name: Music_Name) -> rl.Music {
+get_music :: proc(asset_cache: ^Cache, music_name: Music_Name) -> rl.Music {
 	if music, exists := asset_cache.music_tracks[music_name]; exists {
 		return music
 	}
