@@ -72,9 +72,11 @@ main :: proc() {
 
 	rl.SetTargetFPS(60)
 	rl.SetWindowState({.WINDOW_RESIZABLE, .VSYNC_HINT})
+	rl.SetExitKey(rl.KeyboardKey.KEY_NULL) // disable ESC key exiting the game
 
 	// GAME INIT
 	//
+	// asset cache
 	asset_cache := assets.cache_init()
 	defer assets.cache_destroy(&asset_cache)
 	// we need assets everywhere, so let's make the completly sane decision to
@@ -82,6 +84,11 @@ main :: proc() {
 	// what could ever go wrong?
 	context.user_ptr = &asset_cache
 
+	// set default font
+	default_font := assets.get(&asset_cache, assets.Font_Name.Independent_Modern)
+	rl.GuiSetFont(default_font)
+
+	// main game struct
 	gg := game.init(GAME_WIDTH, GAME_HEIGHT)
 	defer game.destroy(&gg)
 

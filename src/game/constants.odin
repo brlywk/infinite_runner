@@ -3,6 +3,7 @@ package game
 import "../assets"
 
 GAME_INITIAL_SPEED :: 200.0
+GAME_INITIAL_STATE :: Game_State.Playing
 
 BACKGROUND_NAMES :: [?]assets.Texture_Name {
 	Texture_Name.Backround_01,

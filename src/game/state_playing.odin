@@ -12,9 +12,13 @@ DECO_BUILDING_TINT :: rl.Color{100, 100, 100, 255}
 
 
 playing_update :: proc(game: ^Game) {
+	// check for paused key being pressed (ESC)
+	if rl.IsKeyPressed(rl.KeyboardKey.ESCAPE) {
+		game.state = .Paused
+	}
+
 	dt := rl.GetFrameTime()
 	floor_y := y_floored(game^)
-
 
 	// player
 	player_update(&game.player, floor_y, dt)
@@ -40,22 +44,17 @@ playing_draw :: proc(game: ^Game) {
 	playing_draw_floor(game^)
 
 	// buildings
-	// TODO: Change, just for test drawing
-	building := game.building_assets[1]
-	rl.DrawTexture(
-		building,
-		128,
-		game.screen_height - game.floor.height - building.height,
-		DECO_BUILDING_TINT,
-	)
+	playing_draw_building(game^)
 
 	// obstacles
 	playing_draw_obstacles(game^)
 
 	// player
-	player_draw(game.player)
+	is_paused := game.state == .Paused
+	player_draw(game.player, is_paused)
 
 	// ui
+	playing_draw_ui(game^)
 }
 
 @(private = "file")
@@ -81,5 +80,13 @@ playing_draw_obstacles :: proc(game: Game) {
 	for o in game.obstacles {
 		obstacle_draw(o)
 	}
+}
+
+@(private = "file")
+playing_draw_building :: proc(game: Game) {
+}
+
+@(private = "file")
+playing_draw_ui :: proc(game: Game) {
 }
 

@@ -38,6 +38,13 @@ load_animation :: proc(animation_name: Animation_Name) -> Animation {
 	return Animation{texture = texture, animation_info = animation_info}
 }
 
+animaton_vec2 :: proc(animation: ^Animation) -> rl.Vector2 {
+	return rl.Vector2 {
+		f32(animation.animation_info.frame_width),
+		f32(animation.animation_info.frame_height),
+	}
+}
+
 animation_rect :: proc(animation: ^Animation) -> rl.Rectangle {
 	return rl.Rectangle {
 		x = f32(animation.current_frame) * f32(animation.animation_info.frame_width),
@@ -47,8 +54,8 @@ animation_rect :: proc(animation: ^Animation) -> rl.Rectangle {
 	}
 }
 
-animation_play :: proc(animation: ^Animation, pos: rl.Vector2) {
-	if !animation.animation_info.repeats && animation.animation_finished {
+animation_play :: proc(animation: ^Animation, pos: rl.Vector2, freeze_animation := false) {
+	if freeze_animation || (!animation.animation_info.repeats && animation.animation_finished) {
 		rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
 		return
 	}
