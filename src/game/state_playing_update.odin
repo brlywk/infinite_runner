@@ -19,6 +19,7 @@ playing_update :: proc(game: ^Game) {
 	playing_update_floor(game, dt)
 
 	// buildings
+	playing_update_buildings(game, dt)
 
 	// obstacles
 
@@ -33,8 +34,13 @@ playing_update :: proc(game: ^Game) {
 
 	// TODO:
 	// spawn obstacles
+	// ui and all that weird stuff
 	// check for player collision with obstacles
-	// spawn occasional decorative buildings
+	// slightly increase game speed (capped to a max) based on distance
+
+	// cleanup
+	playing_cleanup_buildings(game)
+	playing_cleanup_obstacles(game)
 }
 
 @(private = "file")
@@ -61,5 +67,10 @@ playing_update_floor :: proc(game: ^Game, dt: f32) {
 @(private = "file")
 playing_update_score :: proc(game: ^Game, dt: f32) {
 	game.distance += i32(math.floor(game.speed * dt))
+}
+
+
+@(private = "file")
+playing_cleanup_obstacles :: proc(game: ^Game) {
 }
 

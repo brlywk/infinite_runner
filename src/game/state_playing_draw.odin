@@ -64,9 +64,6 @@ playing_draw_obstacles :: proc(game: Game) {
 	}
 }
 
-@(private = "file")
-playing_draw_building :: proc(game: Game) {
-}
 
 @(private = "file")
 playing_draw_ui :: proc(game: Game) {

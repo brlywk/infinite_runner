@@ -1,6 +1,8 @@
 package game
 
 import "../assets"
+import "core:math/rand"
+import rl "vendor:raylib"
 
 
 // Current game state identifier.
@@ -19,7 +21,6 @@ Game :: struct {
 	screen_height:     i32,
 	speed:             f32,
 	state:             Game_State,
-	score:             i32, // TODO: Still needed with "distance"?
 	distance:          i32,
 
 	// game entities
@@ -37,11 +38,6 @@ Background :: struct {
 	texture:       Texture,
 	scroll_speed:  f32,
 	scroll_offset: f32,
-}
-
-Building :: struct {
-	using pos: Vec2,
-	texture:   Texture,
 }
 
 
@@ -71,7 +67,6 @@ init :: proc(width, height: i32) -> Game {
 		screen_height = height,
 		state = GAME_INITIAL_STATE,
 		speed = GAME_SPEED_INIT,
-		score = 0,
 		distance = 0,
 
 		// game entities
@@ -86,7 +81,7 @@ init :: proc(width, height: i32) -> Game {
 			{texture = assets.get(asset_cache, Texture_Name.Backround_02), scroll_speed = 0.4},
 			{texture = assets.get(asset_cache, Texture_Name.Backround_03), scroll_speed = 0.6},
 			{texture = assets.get(asset_cache, Texture_Name.Backround_04), scroll_speed = 0.8},
-			{texture = assets.get(asset_cache, Texture_Name.Backround_05), scroll_speed = 1.0},
+			{texture = assets.get(asset_cache, Texture_Name.Backround_05), scroll_speed = 0.95},
 		},
 		building_assets = [?]Texture {
 			assets.get(asset_cache, Texture_Name.Building_01),
@@ -97,6 +92,11 @@ init :: proc(width, height: i32) -> Game {
 		},
 	}
 
+	// spawn a first building somewhere on the right side of the screen
+	first_building_x := rand.int31_max(game.screen_width / 2) + game.screen_width / 2
+	first_building := create_random_building(game, f32(first_building_x), rl.GetTime())
+	append(&game.buildings, first_building)
+
 	return game
 }
 
@@ -106,7 +106,7 @@ destroy :: proc(game: ^Game) {
 	delete(game.obstacles)
 	delete(game.buildings)
 
-	// Note: that game.backgrounds is a slice based on an array living on the stack, hence
+	// Note: game.backgrounds is a slice based on an array living on the stack, hence
 	// no deletion needed
 
 	// set raylib fields to zero, b/c handles will be destroyed when asset cache is destroyed
