@@ -9,9 +9,9 @@ import rl "vendor:raylib"
 
 
 Obstacle :: struct {
-	using pos: Vec2,
-	texture:   Texture,
-	active:    bool,
+	using rect: Rect,
+	texture:    Texture,
+	active:     bool,
 }
 
 
@@ -21,7 +21,13 @@ Obstacle :: struct {
 
 
 obstacle_create :: proc(texture: Texture, pos: Vec2) -> Obstacle {
-	return Obstacle{pos = pos, texture = texture, active = true}
+	rect := Rect {
+		x      = pos.x,
+		y      = pos.y,
+		width  = f32(texture.width),
+		height = f32(texture.height),
+	}
+	return Obstacle{rect = rect, texture = texture, active = true}
 }
 
 obstacle_update :: proc(obstacle: ^Obstacle) {

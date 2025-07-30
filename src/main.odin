@@ -70,7 +70,11 @@ main :: proc() {
 	render_target := rl.LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT)
 	defer rl.UnloadRenderTexture(render_target)
 
-	rl.SetTargetFPS(60)
+	// Keeping this commented out as a "note to self":
+	// For some reason, Odin + Raylib have an issue if the monitor refresh rate is not EXACTLY the same
+	// as the target set here, causing micro-stutters with e.g. parallax background scrolling, so
+	// don't set a target but use VSYNC instead...
+	// rl.SetTargetFPS(60)
 	rl.SetWindowState({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.SetExitKey(rl.KeyboardKey.KEY_NULL) // disable ESC key exiting the game
 

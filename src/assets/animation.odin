@@ -54,7 +54,9 @@ animation_rect :: proc(animation: ^Animation) -> rl.Rectangle {
 	}
 }
 
-animation_play :: proc(animation: ^Animation, pos: rl.Vector2, freeze_animation := false) {
+animation_play :: proc(animation: ^Animation, rect: rl.Rectangle, freeze_animation := false) {
+	pos, _ := rect_xy_size(rect)
+
 	if freeze_animation || (!animation.animation_info.repeats && animation.animation_finished) {
 		rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
 		return
@@ -84,5 +86,11 @@ animation_reset :: proc(animation: ^Animation) {
 	animation.current_frame = 0
 	animation.animation_finished = false
 	animation.timer = 0.0
+}
+
+rect_xy_size :: proc(rect: rl.Rectangle) -> (pos, size: rl.Vector2) {
+	pos = {rect.x, rect.y}
+	size = {rect.width, rect.height}
+	return
 }
 

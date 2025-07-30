@@ -1,18 +1,14 @@
 package game
 
 import "../assets"
+import "core:fmt"
 import rl "vendor:raylib"
-
-
-DEFAULT_FONT_NAME :: Font_Name.Independent_Modern
-FONT_SHADOW_COLOR :: rl.Color{0, 0, 0, 222}
-FONT_SHADOW_OFFSET :: Vec2{1.0, 1.0}
 
 
 // Retrieves the default from the asset cache.
 get_default_font :: proc() -> rl.Font {
 	asset_cache := (^assets.Cache)(context.user_ptr)
-	return assets.get(asset_cache, DEFAULT_FONT_NAME)
+	return assets.get(asset_cache, FONT_NAME_DEFAULT)
 }
 
 // Returns the correct x position for an element for it to be drawn centered on the screen.
@@ -52,5 +48,17 @@ draw_center_text_x :: proc(
 	} else {
 		rl.DrawTextEx(default_font, text, text_pos, font_size, 0.0, color)
 	}
+}
+
+// Draw current FPS on screen. A bit nicer looking than rl.DrawFPS().
+draw_fps :: proc(game: Game) {
+	fps := rl.GetFPS()
+	fps_text := fmt.ctprintf("FPS: %d", fps)
+
+	fps_font_size: f32 = 8.0
+	fps_text_x := fps_font_size * 2
+	fps_text_y := f32(game.screen_height - game.floor.texture.height) + fps_font_size / 2
+
+	draw_cool_text(fps_text, fps_font_size, {fps_text_x, fps_text_y}, rl.SKYBLUE)
 }
 
