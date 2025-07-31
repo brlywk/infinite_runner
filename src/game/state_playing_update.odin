@@ -34,6 +34,7 @@ playing_update :: proc(game: ^Game) {
 	player_update(&game.player, floor_y, dt)
 
 	// check collision between player and obstacles
+	playing_handle_collision(game, dt)
 
 	// game distance ("score")
 	playing_update_score(game, dt)
@@ -75,5 +76,10 @@ playing_update_floor :: proc(game: ^Game, dt: f32) {
 @(private = "file")
 playing_update_score :: proc(game: ^Game, dt: f32) {
 	game.distance += i32(math.floor(game.speed * dt))
+}
+
+
+playing_handle_collision :: proc(game: ^Game, dt: f32) {
+
 }
 
