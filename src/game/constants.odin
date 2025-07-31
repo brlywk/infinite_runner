@@ -1,10 +1,9 @@
 package game
 
-import "../assets"
 import rl "vendor:raylib"
 
 
-BACKGROUND_NAMES :: [?]assets.Texture_Name {
+BACKGROUND_NAMES :: [?]Texture_Name {
 	Texture_Name.Backround_01,
 	Texture_Name.Backround_02,
 	Texture_Name.Backround_03,
@@ -14,7 +13,7 @@ BACKGROUND_NAMES :: [?]assets.Texture_Name {
 BACKGROUND_LAYERS :: len(BACKGROUND_NAMES)
 
 
-BUILDING_NAMES :: [?]assets.Texture_Name {
+BUILDING_NAMES :: [?]Texture_Name {
 	Texture_Name.Building_01,
 	Texture_Name.Building_02,
 	Texture_Name.Building_03,
@@ -37,8 +36,13 @@ GAME_SPEED_MAX :: 400.0
 GAME_INITIAL_STATE :: Game_State.Playing
 GAME_PIXELS_PER_POINT :: 10
 
+OBSTACLE_SPAWN_SECONDS_MIN :: 1.5
+OBSTACLE_SPAWN_SECONDS_MAX :: 3.5
+
+PLAYER_INVINCIBILITY :: 1.0 // seconds of invicibility on hitting an obstacle
 PLAYER_X_START_POS :: 16.0
 PLAYER_INITIAL_STATE :: Player_State.Running
+PLAYER_INITIAL_HEALTH :: 3
 PLAYER_HITBOX_OFFSET :: Vec2{4, 0}
 PLAYER_JUMP_FORCE :: 300.0
 PLAYER_GRAVITY :: 800.0

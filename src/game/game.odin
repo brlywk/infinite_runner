@@ -83,7 +83,7 @@ init :: proc(width, height: i32) -> Game {
 			{texture = assets.get(asset_cache, Texture_Name.Backround_04), scroll_speed = 0.8},
 			{texture = assets.get(asset_cache, Texture_Name.Backround_05), scroll_speed = 0.95},
 		},
-		building_assets = [?]Texture {
+		building_assets = {
 			assets.get(asset_cache, Texture_Name.Building_01),
 			assets.get(asset_cache, Texture_Name.Building_02),
 			assets.get(asset_cache, Texture_Name.Building_03),
@@ -94,8 +94,14 @@ init :: proc(width, height: i32) -> Game {
 
 	// spawn a first building somewhere on the right side of the screen
 	first_building_x := rand.int31_max(game.screen_width / 2) + game.screen_width / 2
-	first_building := create_random_building(game, f32(first_building_x), rl.GetTime())
+	first_building := building_create_random(&game, f32(first_building_x), rl.GetTime())
 	append(&game.buildings, first_building)
+
+	// spawn a first obstacle just off-screen to give some time for the player
+	// to mentally prepare for the high-stakes game of obstacle hopping
+	first_obstacle := obstacle_create_random(game, rl.GetTime())
+	append(&game.obstacles, first_obstacle)
+
 
 	return game
 }
@@ -122,6 +128,7 @@ draw :: proc(game: ^Game) {
 		playing_draw(game)
 	case .Paused:
 		paused_draw(game)
+	case .Game_Over:
 	}
 }
 
@@ -131,6 +138,7 @@ update :: proc(game: ^Game) {
 		playing_update(game)
 	case .Paused:
 		paused_update(game)
+	case .Game_Over:
 	}
 }
 

@@ -27,9 +27,11 @@ Player_State :: enum {
 
 
 Player :: struct {
-	using hitbox: Rect, // for a better game feel, the hitbox should be smaller than the sprite
-	velocity:     Vec2,
-	state:        Player_State,
+	using hitbox:        Rect, // for a better game feel, the hitbox should be smaller than the sprite
+	velocity:            Vec2,
+	state:               Player_State,
+	health:              u8,
+	invincibility_timer: f32,
 }
 
 
@@ -51,7 +53,14 @@ player_init :: proc(pos: Vec2, state: Player_State) -> Player {
 	}
 	log.debug("hitbox:", hitbox)
 
-	return Player{velocity = VEC2_ZERO, state = state, hitbox = hitbox}
+
+	return Player {
+		velocity = VEC2_ZERO,
+		state = state,
+		hitbox = hitbox,
+		health = PLAYER_INITIAL_HEALTH,
+		invincibility_timer = PLAYER_INVINCIBILITY,
+	}
 }
 
 
@@ -73,17 +82,29 @@ player_update :: proc(player: ^Player, floor_y: f32, dt: f32) {
 		player.y = floor_y - player.height
 		player.velocity.y = 0
 	}
+
+	// lose invincibility over time
+	if player.invincibility_timer > 0 {
+		player.invincibility_timer -= dt
+		player.invincibility_timer = clamp(player.invincibility_timer, 0, PLAYER_INVINCIBILITY)
+	}
+
+	// NOTE: Collision detection is done in:
+	// state_playing_draw.odin -> playing_check_player_collision()
 }
 
 
-player_draw :: proc(player: Player, freeze_animation := false) {
+// Returns if the current player animation has finished playing.
+player_draw :: proc(player: Player, freeze_animation := false) -> bool {
 	animation := player_get_animation(player)
-	assets.animation_play(animation, player, freeze_animation)
+	animation_ended := assets.animation_play(animation, player, freeze_animation)
 
 	// draw collision rectangle for player in debug mode
 	when ODIN_DEBUG {
 		rl.DrawRectangleLinesEx(player, 1.0, rl.BLUE)
 	}
+
+	return animation_ended
 }
 
 player_get_animation_for_state :: proc(state: Player_State) -> ^Animation {

@@ -1,6 +1,7 @@
 package game
 
 import "core:fmt"
+import "core:log"
 import "core:math"
 import rl "vendor:raylib"
 
@@ -20,8 +21,12 @@ playing_draw :: proc(game: ^Game) {
 
 	// player
 	is_paused := game.state == .Paused
-	player_draw(game.player, is_paused)
+	player_animation_ended := player_draw(game.player, is_paused)
 	// TODO: Small particle system at players feet when running
+
+	if player_animation_ended {
+		log.debugf("player animation ended for state: %v", game.player.state)
+	}
 
 	// ui
 	playing_draw_ui(game^)

@@ -54,12 +54,18 @@ animation_rect :: proc(animation: ^Animation) -> rl.Rectangle {
 	}
 }
 
-animation_play :: proc(animation: ^Animation, rect: rl.Rectangle, freeze_animation := false) {
+animation_play :: proc(
+	animation: ^Animation,
+	rect: rl.Rectangle,
+	freeze_animation := false,
+) -> (
+	animation_ended: bool,
+) {
 	pos, _ := rect_xy_size(rect)
 
 	if freeze_animation || (!animation.animation_info.repeats && animation.animation_finished) {
 		rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
-		return
+		return animation.animation_finished
 	}
 
 	animation.timer += rl.GetFrameTime()
@@ -80,6 +86,7 @@ animation_play :: proc(animation: ^Animation, rect: rl.Rectangle, freeze_animati
 	}
 
 	rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
+	return animation.animation_finished
 }
 
 animation_reset :: proc(animation: ^Animation) {

@@ -12,10 +12,11 @@ Building :: struct {
 }
 
 
-create_random_building :: proc(game: Game, x: f32, time: f64) -> Building {
-	rng_idx := rand.int_max(len(game.building_assets))
-	texture := game.building_assets[rng_idx]
-	floor_y := y_floored(game)
+building_create_random :: proc(game: ^Game, x: f32, time: f64) -> Building {
+	texture := rand.choice(game.building_assets[:])
+	floor_y := y_floored(game^)
+
+	log.debug("building.texture=", texture)
 
 	return Building {
 		texture = texture,
@@ -43,7 +44,7 @@ playing_spawn_building :: proc(game: ^Game, dt: f32) {
 			f32(game.screen_width) + 2,
 		)
 
-		new_building := create_random_building(game^, x, now)
+		new_building := building_create_random(game, x, now)
 
 		log.debugf(
 			"spawning building: last_spawn=%f rng=%f time=%f pos=%v",
