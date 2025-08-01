@@ -76,7 +76,7 @@ main :: proc() {
 	// don't set a target but use VSYNC instead...
 	// rl.SetTargetFPS(60)
 	rl.SetWindowState({.WINDOW_RESIZABLE, .VSYNC_HINT})
-	rl.SetExitKey(rl.KeyboardKey.KEY_NULL) // disable ESC key exiting the game
+	rl.SetExitKey(.KEY_NULL) // disable ESC key exiting the game
 
 	// GAME INIT
 	//

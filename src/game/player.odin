@@ -65,7 +65,7 @@ player_init :: proc(pos: Vec2, state: Player_State) -> Player {
 
 player_update :: proc(player: ^Player, floor_y: f32, dt: f32) {
 	// player jumping
-	if rl.IsKeyDown(rl.KeyboardKey.SPACE) && player.state != .Jumping {
+	if rl.IsKeyDown(.SPACE) && player.state not_in PLAYER_NO_JUMPING_STATES {
 		player_change_state(player, .Jumping)
 		player_reset_animation(player^)
 		player.velocity.y -= PLAYER_JUMP_FORCE

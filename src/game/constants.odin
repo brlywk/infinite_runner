@@ -36,6 +36,8 @@ GAME_SPEED_INIT :: 100.0
 GAME_SPEED_MAX :: 400.0
 GAME_INITIAL_STATE :: Game_State.Playing
 GAME_PIXELS_PER_POINT :: 10
+GAME_SPEED_INCREASE_PER :: 50.0
+GAME_SPEED_INCREASE_BY :: 10.0
 
 OBSTACLE_SPAWN_SECONDS_MIN :: 1.5
 OBSTACLE_SPAWN_SECONDS_MAX :: 3.5
@@ -48,6 +50,7 @@ PLAYER_JUMP_FORCE :: 300.0
 PLAYER_GRAVITY :: 800.0
 // I now understand why so many say bit_sets are a seriously cool feature ;)
 PLAYER_VULNERABLE_STATES :: bit_set[Player_State]{.Running, .Jumping}
+PLAYER_NO_JUMPING_STATES :: bit_set[Player_State]{.Jumping, .Hurt, .Dead}
 
 UI_SCORE_POS :: Vec2{4.0, 4.0}
 UI_SCORE_FONT_SIZE :: 8.0

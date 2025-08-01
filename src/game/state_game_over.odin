@@ -34,11 +34,11 @@ game_over_update :: proc(game: ^Game) {
 
 	// reset game
 	#partial switch rl.GetKeyPressed() {
-	case rl.KeyboardKey.R:
+	case .R:
 		reset(game)
-	case rl.KeyboardKey.M:
+	case .M:
 		game.state = .Menu
-	case rl.KeyboardKey.ESCAPE:
+	case .ESCAPE:
 		game.state = .Exit
 	}
 
@@ -104,7 +104,7 @@ game_over_draw_ui :: proc(game: ^Game) {
 	// final score
 	score_y := padding + game_over_font_size * 2
 	score_font_size: f32 = 8.0
-	score_text := fmt.ctprintf("Distance travelled: %d", game.distance)
+	score_text := fmt.ctprintf("Distance travelled: %d", calc_distance_score(game^))
 	draw_center_text_x(
 		score_text,
 		score_font_size,

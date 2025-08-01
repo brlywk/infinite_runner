@@ -7,7 +7,7 @@ PAUSE_SCREEN_BG_TINT :: rl.Color{10, 10, 10, 200}
 
 
 paused_update :: proc(game: ^Game) {
-	if rl.IsKeyPressed(rl.KeyboardKey.ESCAPE) {
+	if rl.IsKeyPressed(.ESCAPE) {
 		game.state = .Playing
 	}
 }

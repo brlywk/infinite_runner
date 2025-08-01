@@ -7,7 +7,7 @@ import rl "vendor:raylib"
 
 playing_update :: proc(game: ^Game) {
 	// check for paused key being pressed (ESC)
-	if rl.IsKeyPressed(rl.KeyboardKey.ESCAPE) {
+	if rl.IsKeyPressed(.ESCAPE) {
 		game.state = .Paused
 	}
 
@@ -30,12 +30,12 @@ playing_update :: proc(game: ^Game) {
 	// obstacles
 	playing_update_obstacles(game, dt)
 
+	// check collision between player and obstacles
+	playing_handle_collision(game, dt)
+
 	// player
 	floor_y := y_floored(game^)
 	player_update(&game.player, floor_y, dt)
-
-	// check collision between player and obstacles
-	playing_handle_collision(game, dt)
 
 	// game distance ("score")
 	playing_update_score(game, dt)
@@ -100,6 +100,8 @@ playing_handle_collision :: proc(game: ^Game, dt: f32) {
 		game.player.health -= 1
 		if game.player.health > 0 {
 			player_change_state(&game.player, .Hurt)
+			// prevent any jumping velocity to acrue will player is in hurt state
+			game.player.velocity.y = 0
 		} else {
 			player_change_state(&game.player, .Dead)
 		}
