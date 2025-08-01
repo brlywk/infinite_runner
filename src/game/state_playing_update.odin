@@ -1,5 +1,6 @@
 package game
 
+// import "core:log"
 import "core:math"
 import rl "vendor:raylib"
 
@@ -79,7 +80,35 @@ playing_update_score :: proc(game: ^Game, dt: f32) {
 }
 
 
-playing_handle_collision :: proc(game: ^Game, dt: f32) {
+check_collision :: proc(player: Player, obstacle: Obstacle) -> bool {
+	return rl.CheckCollisionRecs(player, obstacle)
+}
 
+check_all_collisions :: proc(game: ^Game) -> bool {
+	for obstacle in game.obstacles do if check_collision(game.player, obstacle) {
+		return true
+	}
+
+	return false
+}
+
+playing_handle_collision :: proc(game: ^Game, dt: f32) {
+	collision := check_all_collisions(game)
+
+	// state change -> collision just happened
+	if collision && game.player.state in PLAYER_VULNERABLE_STATES {
+		game.player.health -= 1
+		if game.player.health > 0 {
+			player_change_state(&game.player, .Hurt)
+		} else {
+			player_change_state(&game.player, .Dead)
+		}
+	}
+
+	// collision ended
+	if !collision && game.player.state == .Hurt {
+		player_reset_animation(game.player)
+		player_change_state(&game.player, .Running)
+	}
 }
 

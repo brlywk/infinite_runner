@@ -1,7 +1,7 @@
 package game
 
 import "core:fmt"
-import "core:log"
+// import "core:log"
 import "core:math"
 import rl "vendor:raylib"
 
@@ -21,18 +21,13 @@ playing_draw :: proc(game: ^Game) {
 
 	// player
 	is_paused := game.state == .Paused
-	player_animation_ended := player_draw(game.player, is_paused)
+	player_draw(game.player, is_paused)
 	// TODO: Small particle system at players feet when running
-
-	if player_animation_ended {
-		log.debugf("player animation ended for state: %v", game.player.state)
-	}
 
 	// ui
 	playing_draw_ui(game^)
 }
 
-@(private = "file")
 playing_draw_floor :: proc(game: Game) {
 	floor_width := game.floor.texture.width
 	floor_y := game.screen_height - game.floor.texture.height
@@ -48,7 +43,6 @@ playing_draw_floor :: proc(game: Game) {
 	}
 }
 
-@(private = "file")
 playing_draw_background :: proc(game: Game) {
 	for bg in game.background_assets {
 		texture_width := f32(bg.texture.width)
@@ -62,7 +56,6 @@ playing_draw_background :: proc(game: Game) {
 	}
 }
 
-@(private = "file")
 playing_draw_obstacles :: proc(game: Game) {
 	for o in game.obstacles {
 		obstacle_draw(o)
@@ -70,7 +63,6 @@ playing_draw_obstacles :: proc(game: Game) {
 }
 
 
-@(private = "file")
 playing_draw_ui :: proc(game: Game) {
 	// distance score
 	playing_draw_distance(game)
@@ -82,14 +74,12 @@ playing_draw_ui :: proc(game: Game) {
 	}
 }
 
-@(private = "file")
 playing_draw_distance :: proc(game: Game) {
 	distance_score := calc_distance_score(game)
 	dist_text := fmt.ctprintf("Distance: %d", distance_score)
 	draw_cool_text(dist_text, UI_SCORE_FONT_SIZE, UI_SCORE_POS, UI_SCORE_COLOR)
 }
 
-@(private = "file")
 playing_draw_player_health :: proc(game: Game) {
 	// measure a static placeholder text to get an x-coordinate that is
 	// "close enough", but prevents the text from jumping when updated
@@ -100,6 +90,5 @@ playing_draw_player_health :: proc(game: Game) {
 	}
 	health_text := fmt.ctprintf("Health: %d", game.player.health)
 	draw_cool_text(health_text, UI_SCORE_FONT_SIZE, health_text_pos, UI_SCORE_COLOR)
-
 }
 

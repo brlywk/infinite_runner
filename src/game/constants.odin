@@ -29,6 +29,7 @@ BUILDING_SPAWN_GAP_MAX :: 128
 
 FONT_NAME_DEFAULT :: Font_Name.Independent_Modern
 FONT_SHADOW_COLOR :: rl.Color{0, 0, 0, 222}
+FONT_SHADOW_COLOR_ON_BLACK :: rl.Color{66, 66, 66, 255}
 FONT_SHADOW_OFFSET :: Vec2{1.0, 1.0}
 
 GAME_SPEED_INIT :: 100.0
@@ -39,13 +40,14 @@ GAME_PIXELS_PER_POINT :: 10
 OBSTACLE_SPAWN_SECONDS_MIN :: 1.5
 OBSTACLE_SPAWN_SECONDS_MAX :: 3.5
 
-PLAYER_INVINCIBILITY :: 1.0 // seconds of invicibility on hitting an obstacle
 PLAYER_X_START_POS :: 16.0
 PLAYER_INITIAL_STATE :: Player_State.Running
-PLAYER_INITIAL_HEALTH :: 3
+PLAYER_INITIAL_HEALTH :: 4
 PLAYER_HITBOX_OFFSET :: Vec2{4, 0}
 PLAYER_JUMP_FORCE :: 300.0
 PLAYER_GRAVITY :: 800.0
+// I now understand why so many say bit_sets are a seriously cool feature ;)
+PLAYER_VULNERABLE_STATES :: bit_set[Player_State]{.Running, .Jumping}
 
 UI_SCORE_POS :: Vec2{4.0, 4.0}
 UI_SCORE_FONT_SIZE :: 8.0

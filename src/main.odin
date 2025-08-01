@@ -104,6 +104,11 @@ main :: proc() {
 		// UPDATE
 		game.update(&gg)
 
+		// exit condition
+		if game.should_exit(gg) {
+			break
+		}
+
 		// DRAW
 		// we draw to the render texture first...
 		{

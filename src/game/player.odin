@@ -27,11 +27,11 @@ Player_State :: enum {
 
 
 Player :: struct {
-	using hitbox:        Rect, // for a better game feel, the hitbox should be smaller than the sprite
-	velocity:            Vec2,
-	state:               Player_State,
-	health:              u8,
-	invincibility_timer: f32,
+	using hitbox: Rect, // for a better game feel, the hitbox should be smaller than the sprite
+	velocity:     Vec2,
+	state:        Player_State,
+	prev_state:   Player_State,
+	health:       u8,
 }
 
 
@@ -57,17 +57,16 @@ player_init :: proc(pos: Vec2, state: Player_State) -> Player {
 	return Player {
 		velocity = VEC2_ZERO,
 		state = state,
+		prev_state = state,
 		hitbox = hitbox,
 		health = PLAYER_INITIAL_HEALTH,
-		invincibility_timer = PLAYER_INVINCIBILITY,
 	}
 }
-
 
 player_update :: proc(player: ^Player, floor_y: f32, dt: f32) {
 	// player jumping
 	if rl.IsKeyDown(rl.KeyboardKey.SPACE) && player.state != .Jumping {
-		player.state = .Jumping
+		player_change_state(player, .Jumping)
 		player_reset_animation(player^)
 		player.velocity.y -= PLAYER_JUMP_FORCE
 	}
@@ -78,15 +77,13 @@ player_update :: proc(player: ^Player, floor_y: f32, dt: f32) {
 
 	// floor collision detection
 	if player.y + player.height >= floor_y {
-		player.state = .Running
+		// only change state here if it's jumping -> running, otherwise
+		// collision detection goes haywire
+		if player.state == .Jumping {
+			player_change_state(player, .Running)
+		}
 		player.y = floor_y - player.height
 		player.velocity.y = 0
-	}
-
-	// lose invincibility over time
-	if player.invincibility_timer > 0 {
-		player.invincibility_timer -= dt
-		player.invincibility_timer = clamp(player.invincibility_timer, 0, PLAYER_INVINCIBILITY)
 	}
 
 	// NOTE: Collision detection is done in:
@@ -119,8 +116,30 @@ player_get_animation :: proc(player: Player) -> ^Animation {
 	return player_get_animation_for_state(player.state)
 }
 
+player_get_sprite_size :: proc(player: Player) -> Vec2 {
+	current_animation := player_get_animation(player)
+	return Vec2 {
+		f32(current_animation.animation_info.frame_width),
+		f32(current_animation.animation_info.frame_height),
+	}
+}
+
+player_get_pos :: proc(player: Player) -> Vec2 {
+	return Vec2{player.x, player.y}
+}
+
 player_reset_animation :: proc(player: Player) {
 	animation := player_get_animation(player)
 	assets.animation_reset(animation)
+}
+
+player_change_state :: proc(player: ^Player, new_state: Player_State, loc := #caller_location) {
+	if player.state == new_state do return
+
+	player.prev_state = player.state
+	player.state = new_state
+
+	log.debug("player state change requested from:", loc)
+	log.debugf("player state change: old=%v new=%v", player.prev_state, new_state)
 }
 

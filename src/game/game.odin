@@ -7,11 +7,12 @@ import rl "vendor:raylib"
 
 // Current game state identifier.
 Game_State :: enum {
-	Loading,
+	// Loading,
 	Menu,
 	Playing,
 	Paused,
 	Game_Over,
+	Exit,
 }
 
 // The game struct. Yes, *THE* game struct.
@@ -53,14 +54,6 @@ init :: proc(width, height: i32) -> Game {
 	// floor
 	floor := assets.get(asset_cache, Texture_Name.Floor)
 
-	// player
-	player_init_anim := player_animations[PLAYER_INITIAL_STATE]
-	player_animation := assets.get(asset_cache, player_init_anim)
-	player_pos := Vec2 {
-		PLAYER_X_START_POS,
-		f32(height - floor.height - player_animation.texture.height),
-	}
-
 	game := Game {
 		// general settings
 		screen_width = width,
@@ -70,7 +63,7 @@ init :: proc(width, height: i32) -> Game {
 		distance = 0,
 
 		// game entities
-		player = player_init(player_pos, PLAYER_INITIAL_STATE),
+		player = init_player(asset_cache, width, height, floor.height),
 		buildings = make([dynamic]Building),
 		obstacles = make([dynamic]Obstacle),
 
@@ -92,18 +85,38 @@ init :: proc(width, height: i32) -> Game {
 		},
 	}
 
+	// spawn some initial stuff
+	init_spawn(&game)
+
+	return game
+}
+
+init_player :: proc(asset_cache: ^Asset_Cache, width, height, floor_height: i32) -> Player {
+	// player
+	player_init_anim := player_animations[PLAYER_INITIAL_STATE]
+	player_animation := assets.get(asset_cache, player_init_anim)
+	player_pos := Vec2 {
+		PLAYER_X_START_POS,
+		f32(height - floor_height - player_animation.texture.height),
+	}
+
+	return player_init(player_pos, PLAYER_INITIAL_STATE)
+}
+
+init_spawn :: proc(game: ^Game) {
 	// spawn a first building somewhere on the right side of the screen
 	first_building_x := rand.int31_max(game.screen_width / 2) + game.screen_width / 2
-	first_building := building_create_random(&game, f32(first_building_x), rl.GetTime())
+	first_building := building_create_random(game, f32(first_building_x), rl.GetTime())
 	append(&game.buildings, first_building)
 
 	// spawn a first obstacle just off-screen to give some time for the player
 	// to mentally prepare for the high-stakes game of obstacle hopping
 	first_obstacle := obstacle_create_random(game, rl.GetTime())
 	append(&game.obstacles, first_obstacle)
+}
 
-
-	return game
+reset :: proc(game: ^Game) {
+	game^ = init(game.screen_width, game.screen_height)
 }
 
 // Destroys the main game struct, de-allocating all the things.
@@ -129,6 +142,9 @@ draw :: proc(game: ^Game) {
 	case .Paused:
 		paused_draw(game)
 	case .Game_Over:
+		game_over_draw(game)
+	case .Menu:
+		menu_draw(game)
 	}
 }
 
@@ -139,6 +155,13 @@ update :: proc(game: ^Game) {
 	case .Paused:
 		paused_update(game)
 	case .Game_Over:
+		game_over_update(game)
+	case .Menu:
+		menu_update(game)
 	}
+}
+
+should_exit :: proc(game: Game) -> bool {
+	return game.state == .Exit
 }
 

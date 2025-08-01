@@ -35,12 +35,12 @@ Obstacle :: struct {
 }
 
 
-obstacle_create_random :: proc(game: Game, time: f64) -> Obstacle {
+obstacle_create_random :: proc(game: ^Game, time: f64) -> Obstacle {
 	asset_cache := (^Asset_Cache)(context.user_ptr)
 
 	texture_name := rand.choice(obstacle_names)
 	texture := assets.get(asset_cache, texture_name)
-	floor_y := y_floored(game)
+	floor_y := y_floored(game^)
 
 	return Obstacle {
 		texture = texture,
@@ -64,7 +64,7 @@ playing_obstacle_spawn :: proc(game: ^Game, dt: f32) {
 
 	if now >= last_spawned.spawn_time + rng {
 		// always spawn obstacles just outside the right screen bounds
-		new_obstacle := obstacle_create_random(game^, now)
+		new_obstacle := obstacle_create_random(game, now)
 		log.debugf(
 			"spawning obstacle: last_spawn=%f rng=%f time=%f pos=%v",
 			last_spawned.spawn_time,

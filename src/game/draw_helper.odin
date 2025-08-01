@@ -2,6 +2,7 @@ package game
 
 import "../assets"
 import "core:fmt"
+import "core:math"
 import rl "vendor:raylib"
 
 
@@ -11,18 +12,38 @@ get_default_font :: proc() -> rl.Font {
 	return assets.get(asset_cache, FONT_NAME_DEFAULT)
 }
 
+get_screen_center :: proc(game: Game) -> Vec2 {
+	return Vec2{f32(game.screen_width) / 2, f32(game.screen_height) / 2}
+}
+
+get_screen_center_nearest :: proc(game: Game) -> Vec2 {
+	center := get_screen_center(game)
+	return vec2_round_to_pixel(center)
+
+}
+
 // Returns the correct x position for an element for it to be drawn centered on the screen.
 get_screen_center_x :: proc(game: Game, element_width: f32) -> f32 {
 	return f32(game.screen_width) / 2.0 - element_width / 2.0
 }
 
+vec2_round_to_pixel :: proc(vec: Vec2) -> Vec2 {
+	return Vec2{math.round(vec.x), math.round(vec.y)}
+}
+
 // Draws the given text with a coooool drop shadow. Because it's cool. Maybe.
-draw_cool_text :: proc(text: cstring, font_size: f32, pos: Vec2, color: rl.Color) {
+draw_cool_text :: proc(
+	text: cstring,
+	font_size: f32,
+	pos: Vec2,
+	color: rl.Color,
+	shadow_color := FONT_SHADOW_COLOR,
+) {
 	default_font := get_default_font()
 
 	// drop-shadow
 	shadow_pos := pos + FONT_SHADOW_OFFSET
-	rl.DrawTextEx(default_font, text, shadow_pos, font_size, 0.0, FONT_SHADOW_COLOR)
+	rl.DrawTextEx(default_font, text, shadow_pos, font_size, 0.0, shadow_color)
 
 	// actual text
 	rl.DrawTextEx(default_font, text, pos, font_size, 0.0, color)
@@ -35,6 +56,7 @@ draw_center_text_x :: proc(
 	game: Game,
 	text_y: f32,
 	color: rl.Color,
+	shadow_color := FONT_SHADOW_COLOR,
 	shadow := true,
 ) {
 	default_font := get_default_font()
@@ -44,7 +66,7 @@ draw_center_text_x :: proc(
 	text_pos := Vec2{text_x, text_y}
 
 	if shadow {
-		draw_cool_text(text, font_size, text_pos, color)
+		draw_cool_text(text, font_size, text_pos, color, shadow_color)
 	} else {
 		rl.DrawTextEx(default_font, text, text_pos, font_size, 0.0, color)
 	}
