@@ -16,6 +16,9 @@ player_animations := [Player_State]Animation_Name {
 	.Dead      = .Player_Dead,
 }
 
+// possible footstep sounds for player movement
+player_footstep_sounds := []Sound_Name{.Step_01, .Step_02, .Step_03, .Step_04, .Step_05}
+
 
 Player_State :: enum {
 	Running,
@@ -27,11 +30,12 @@ Player_State :: enum {
 
 
 Player :: struct {
-	using hitbox: Rect, // for a better game feel, the hitbox should be smaller than the sprite
-	velocity:     Vec2,
-	state:        Player_State,
-	prev_state:   Player_State,
-	health:       u8,
+	using hitbox:     Rect, // for a better game feel, the hitbox should be smaller than the sprite
+	velocity:         Vec2,
+	state:            Player_State,
+	prev_state:       Player_State,
+	health:           u8,
+	speed_multiplier: f32,
 }
 
 
@@ -60,10 +64,14 @@ player_init :: proc(pos: Vec2, state: Player_State) -> Player {
 		prev_state = state,
 		hitbox = hitbox,
 		health = PLAYER_INITIAL_HEALTH,
+		speed_multiplier = 1.0,
 	}
 }
 
-player_update :: proc(player: ^Player, floor_y: f32, dt: f32) {
+player_update :: proc(player: ^Player, floor_y: f32, dt: f32, game_speed: f32) {
+	// set current speed modifier
+	player_update_speed_mod(player, game_speed)
+
 	// player jumping
 	if rl.IsKeyDown(.SPACE) && player.state not_in PLAYER_NO_JUMPING_STATES {
 		player_change_state(player, .Jumping)
@@ -90,11 +98,23 @@ player_update :: proc(player: ^Player, floor_y: f32, dt: f32) {
 	// state_playing_draw.odin -> playing_check_player_collision()
 }
 
+// Adjusts the current speed modifier using the current game speed.
+player_update_speed_mod :: proc(player: ^Player, game_speed: f32) {
+	player.speed_multiplier = game_speed / GAME_SPEED_INIT
+}
 
 // Returns if the current player animation has finished playing.
 player_draw :: proc(player: Player, freeze_animation := false) -> bool {
 	animation := player_get_animation(player)
-	animation_ended := assets.animation_play(animation, player, freeze_animation)
+	animation_ended := assets.animation_play(
+		animation,
+		player,
+		player.speed_multiplier,
+		freeze_animation,
+		// tint the player animation sprite red while in "hurt" state for
+		// better visual feedback (and many new bugs to fix :P)
+		player.state == .Hurt ? rl.RED : rl.WHITE,
+	)
 
 	// draw collision rectangle for player in debug mode
 	when ODIN_DEBUG {

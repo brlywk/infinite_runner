@@ -57,7 +57,9 @@ animation_rect :: proc(animation: ^Animation) -> rl.Rectangle {
 animation_play :: proc(
 	animation: ^Animation,
 	rect: rl.Rectangle,
+	speed_modifier: f32 = 1.0,
 	freeze_animation := false,
+	color_tint := rl.WHITE,
 ) -> (
 	animation_ended: bool,
 ) {
@@ -70,7 +72,9 @@ animation_play :: proc(
 
 	animation.timer += rl.GetFrameTime()
 
-	frame_time := animation.animation_info.duration / f32(animation.animation_info.num_frames)
+	frame_time :=
+		animation.animation_info.duration /
+		(f32(animation.animation_info.num_frames) * speed_modifier)
 	target_frame := int(animation.timer / frame_time)
 
 	if animation.animation_info.repeats {
@@ -85,7 +89,7 @@ animation_play :: proc(
 		}
 	}
 
-	rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, rl.WHITE)
+	rl.DrawTextureRec(animation.texture, animation_rect(animation), pos, color_tint)
 	return animation.animation_finished
 }
 

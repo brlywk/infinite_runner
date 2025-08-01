@@ -1,8 +1,14 @@
 package game
 
-// import "core:log"
+import "core:log"
 import "core:math"
 import rl "vendor:raylib"
+
+
+// TODO: Bug fixes:
+// - pausing the game does not pause the obstacle spawn timer, so obstacles
+//      might spawn a lot closer together than intended
+//      -> maybe save a "last_pause_duration" on game and add that to the spawn calculation?
 
 
 playing_update :: proc(game: ^Game) {
@@ -35,18 +41,15 @@ playing_update :: proc(game: ^Game) {
 
 	// player
 	floor_y := y_floored(game^)
-	player_update(&game.player, floor_y, dt)
+	player_update(&game.player, floor_y, dt, game.speed)
 
 	// game distance ("score")
 	playing_update_score(game, dt)
 
-	// ui
 
 	// TODO:
-	// check for player collision with obstacles
-	// add player health so player can survive ~3 collisions -> reduce game speed on collision
-	// ui and all that weird stuff
 	// slightly increase game speed (capped to a max) based on distance
+	playing_update_game_speed(game)
 
 	// cleanup
 	playing_cleanup_buildings(game)
@@ -77,6 +80,21 @@ playing_update_floor :: proc(game: ^Game, dt: f32) {
 @(private = "file")
 playing_update_score :: proc(game: ^Game, dt: f32) {
 	game.distance += i32(math.floor(game.speed * dt))
+}
+
+playing_update_game_speed :: proc(game: ^Game) {
+	// NOTE: The game speed displayed is different from the game speed internally,
+	// so we need to "scale" all changes accordingly (smart? no!)
+	actual_speed_per: f32 = GAME_SPEED_INCREASE_PER * GAME_PIXELS_PER_POINT
+	speed_modifier := f32(game.distance / i32(actual_speed_per))
+	speed_increase: f32 = speed_modifier * (GAME_SPEED_INCREASE_BY / (speed_modifier + 1))
+
+	if speed_increase != game.last_increase {
+		log.debugf("SPEED CHANGE: raw_distance=%d new_speed=%f", game.distance, game.speed)
+		game.last_increase = speed_increase
+		game.speed += speed_increase
+		game.speed = clamp(game.speed, GAME_SPEED_INIT, GAME_SPEED_MAX)
+	}
 }
 
 

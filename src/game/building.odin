@@ -33,8 +33,14 @@ playing_spawn_building :: proc(game: ^Game, dt: f32) {
 
 	last_spawned := game.buildings[num_buildings - 1]
 
-	now := rl.GetTime()
-	rng := rand.float64_range(BUILDING_SPAWN_SECONDS_MIN, BUILDING_SPAWN_SECONDS_MAX)
+	// spawn times need to be sclaed with game speed, otherwise gaps become increasingly
+	// bigger to the point of no more buildings spawning
+	spawn_speed_factor := game.speed / GAME_SPEED_INIT
+	scaled_min := f64(BUILDING_SPAWN_SECONDS_MIN / spawn_speed_factor)
+	scaled_max := f64(BUILDING_SPAWN_SECONDS_MAX / spawn_speed_factor)
+
+	now := rl.GetTime() - game.started
+	rng := rand.float64_range(scaled_min, scaled_max)
 
 	if now >= last_spawned.spawn_time + rng {
 		// add small gap for more randomness

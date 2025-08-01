@@ -19,8 +19,10 @@ game_over_draw :: proc(game: ^Game) {
 
 	// draw the final screen
 	dt := rl.GetFrameTime()
-	rl.ClearBackground(rl.BLACK)
+
+	playing_draw_background(game^)
 	player_draw(game.player)
+
 	// only who the UI once the animation is done
 	if !game_over_move_player(game, dt) do return
 
@@ -32,7 +34,6 @@ game_over_update :: proc(game: ^Game) {
 	// although everybode LOOOVES unskippable "cutscenes", let's be nice and allow
 	// players to do something before the death animation finishes
 
-	// reset game
 	#partial switch rl.GetKeyPressed() {
 	case .R:
 		reset(game)
@@ -41,8 +42,6 @@ game_over_update :: proc(game: ^Game) {
 	case .ESCAPE:
 		game.state = .Exit
 	}
-
-	// exit game
 
 	// play death animation first
 	death_animation_finished := player_get_animation(game.player).animation_finished

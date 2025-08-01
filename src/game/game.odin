@@ -21,8 +21,10 @@ Game :: struct {
 	screen_width:      i32,
 	screen_height:     i32,
 	speed:             f32,
+	last_increase:     f32,
 	state:             Game_State,
 	distance:          i32,
+	started:           f64,
 
 	// game entities
 	player:            Player,
@@ -54,6 +56,9 @@ init :: proc(width, height: i32) -> Game {
 	// floor
 	floor := assets.get(asset_cache, Texture_Name.Floor)
 
+	// time the game actually started
+	started := rl.GetTime()
+
 	game := Game {
 		// general settings
 		screen_width = width,
@@ -61,6 +66,7 @@ init :: proc(width, height: i32) -> Game {
 		state = GAME_INITIAL_STATE,
 		speed = GAME_SPEED_INIT,
 		distance = 0,
+		started = started,
 
 		// game entities
 		player = init_player(asset_cache, width, height, floor.height),
@@ -106,12 +112,12 @@ init_player :: proc(asset_cache: ^Asset_Cache, width, height, floor_height: i32)
 init_spawn :: proc(game: ^Game) {
 	// spawn a first building somewhere on the right side of the screen
 	first_building_x := rand.int31_max(game.screen_width / 2) + game.screen_width / 2
-	first_building := building_create_random(game, f32(first_building_x), rl.GetTime())
+	first_building := building_create_random(game, f32(first_building_x), game.started)
 	append(&game.buildings, first_building)
 
 	// spawn a first obstacle just off-screen to give some time for the player
 	// to mentally prepare for the high-stakes game of obstacle hopping
-	first_obstacle := obstacle_create_random(game, rl.GetTime())
+	first_obstacle := obstacle_create_random(game, game.started)
 	append(&game.obstacles, first_obstacle)
 }
 

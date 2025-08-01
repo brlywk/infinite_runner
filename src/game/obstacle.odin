@@ -59,8 +59,19 @@ playing_obstacle_spawn :: proc(game: ^Game, dt: f32) {
 	if num_obstacles == 0 do return
 
 	last_spawned := game.obstacles[num_obstacles - 1]
-	now := rl.GetTime()
-	rng := rand.float64_range(OBSTACLE_SPAWN_SECONDS_MIN, OBSTACLE_SPAWN_SECONDS_MAX)
+
+	// scale spawning with game speed to avoid gaps
+	spawn_speed_factor := game.speed / GAME_SPEED_INIT
+	scaled_min := f64(OBSTACLE_SPAWN_SECONDS_MIN / spawn_speed_factor)
+	scaled_max := f64(OBSTACLE_SPAWN_SECONDS_MAX / spawn_speed_factor)
+
+
+	// TODO: We need to scale obstacle spawning at a lower rate than directly 
+	// proportional to game speed, otherwise it becomes increasingly impossible
+	// to jump between gaps; alternatively increase jump speed and gravity to get
+	// player "down to earth" a lot quicker with time
+	now := rl.GetTime() - game.started
+	rng := rand.float64_range(scaled_min, scaled_max)
 
 	if now >= last_spawned.spawn_time + rng {
 		// always spawn obstacles just outside the right screen bounds

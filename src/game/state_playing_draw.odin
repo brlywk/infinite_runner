@@ -66,11 +66,16 @@ playing_draw_obstacles :: proc(game: Game) {
 playing_draw_ui :: proc(game: Game) {
 	// distance score
 	playing_draw_distance(game)
+
+	// draw elapsed time
+	playing_draw_time_elapsed(game)
+
 	// player health
 	playing_draw_player_health(game)
 
 	when ODIN_DEBUG {
 		draw_fps(game)
+		draw_raw_distance(game)
 	}
 }
 
@@ -81,8 +86,7 @@ playing_draw_distance :: proc(game: Game) {
 }
 
 playing_draw_player_health :: proc(game: Game) {
-	// measure a static placeholder text to get an x-coordinate that is
-	// "close enough", but prevents the text from jumping when updated
+	// measure a static placeholder text to get an x-coordinate that is "close enough", but prevents the text from jumping when updated
 	placeholder_size := rl.MeasureTextEx(get_default_font(), "Health: X", UI_SCORE_FONT_SIZE, 0.0)
 	health_text_pos := Vec2 {
 		f32(game.screen_width) - placeholder_size.x - UI_SCORE_POS.x,
@@ -90,5 +94,12 @@ playing_draw_player_health :: proc(game: Game) {
 	}
 	health_text := fmt.ctprintf("Health: %d", game.player.health)
 	draw_cool_text(health_text, UI_SCORE_FONT_SIZE, health_text_pos, UI_SCORE_COLOR)
+}
+
+playing_draw_time_elapsed :: proc(game: Game) {
+	time_elapsed := rl.GetTime() - game.started
+	time_elapsed_text := fmt.ctprintf("%0.f", time_elapsed)
+
+	draw_center_text_x(time_elapsed_text, UI_SCORE_FONT_SIZE, game, UI_SCORE_POS.y, UI_SCORE_COLOR)
 }
 

@@ -84,3 +84,16 @@ draw_fps :: proc(game: Game) {
 	draw_cool_text(fps_text, fps_font_size, {fps_text_x, fps_text_y}, rl.SKYBLUE)
 }
 
+// Distance is scaled to display a nicer number. This (debug) function prints the actual number
+// to the screen
+draw_raw_distance :: proc(game: Game) {
+	dist_raw_text := fmt.ctprintf("Raw Distance: %d", game.distance)
+	dist_raw_font_size: f32 = 8.0
+	dist_raw_x := get_screen_center_x(game, 0)
+
+	dist_raw_y := f32(game.screen_height - game.floor.texture.height) + dist_raw_font_size / 2
+
+	draw_cool_text(dist_raw_text, dist_raw_font_size, {dist_raw_x, dist_raw_y}, rl.GREEN)
+
+}
+
