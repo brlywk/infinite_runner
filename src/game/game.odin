@@ -1,6 +1,7 @@
 package game
 
-import "../assets"
+import "../global"
+import "core:log"
 import "core:math/rand"
 import rl "vendor:raylib"
 
@@ -51,10 +52,8 @@ Background :: struct {
 //
 // Returns: Initialized Game struct.
 init :: proc(width, height: i32) -> Game {
-	asset_cache := (^Asset_Cache)(context.user_ptr)
-
 	// floor
-	floor := assets.get(asset_cache, Texture_Name.Floor)
+	floor := global.get_asset(Texture_Name.Floor)
 
 	// time the game actually started
 	started := rl.GetTime()
@@ -69,25 +68,25 @@ init :: proc(width, height: i32) -> Game {
 		started = started,
 
 		// game entities
-		player = init_player(asset_cache, width, height, floor.height),
+		player = init_player(width, height, floor.height),
 		buildings = make([dynamic]Building),
 		obstacles = make([dynamic]Obstacle),
 
 		// assets
 		floor = {texture = floor, scroll_speed = 1.0},
 		background_assets = {
-			{texture = assets.get(asset_cache, Texture_Name.Backround_01), scroll_speed = 0.2},
-			{texture = assets.get(asset_cache, Texture_Name.Backround_02), scroll_speed = 0.4},
-			{texture = assets.get(asset_cache, Texture_Name.Backround_03), scroll_speed = 0.6},
-			{texture = assets.get(asset_cache, Texture_Name.Backround_04), scroll_speed = 0.8},
-			{texture = assets.get(asset_cache, Texture_Name.Backround_05), scroll_speed = 0.95},
+			{texture = global.get_asset(Texture_Name.Backround_01), scroll_speed = 0.2},
+			{texture = global.get_asset(Texture_Name.Backround_02), scroll_speed = 0.4},
+			{texture = global.get_asset(Texture_Name.Backround_03), scroll_speed = 0.6},
+			{texture = global.get_asset(Texture_Name.Backround_04), scroll_speed = 0.8},
+			{texture = global.get_asset(Texture_Name.Backround_05), scroll_speed = 0.95},
 		},
 		building_assets = {
-			assets.get(asset_cache, Texture_Name.Building_01),
-			assets.get(asset_cache, Texture_Name.Building_02),
-			assets.get(asset_cache, Texture_Name.Building_03),
-			assets.get(asset_cache, Texture_Name.Building_04),
-			assets.get(asset_cache, Texture_Name.Building_05),
+			global.get_asset(Texture_Name.Building_01),
+			global.get_asset(Texture_Name.Building_02),
+			global.get_asset(Texture_Name.Building_03),
+			global.get_asset(Texture_Name.Building_04),
+			global.get_asset(Texture_Name.Building_05),
 		},
 	}
 
@@ -97,10 +96,9 @@ init :: proc(width, height: i32) -> Game {
 	return game
 }
 
-init_player :: proc(asset_cache: ^Asset_Cache, width, height, floor_height: i32) -> Player {
-	// player
+init_player :: proc(width, height, floor_height: i32) -> Player {
 	player_init_anim := player_animations[PLAYER_INITIAL_STATE]
-	player_animation := assets.get(asset_cache, player_init_anim)
+	player_animation := global.get_asset(player_init_anim)
 	player_pos := Vec2 {
 		PLAYER_X_START_POS,
 		f32(height - floor_height - player_animation.texture.height),
@@ -110,6 +108,8 @@ init_player :: proc(asset_cache: ^Asset_Cache, width, height, floor_height: i32)
 }
 
 init_spawn :: proc(game: ^Game) {
+	log.debugf("init_spawn: game.startet=%v current_time=%v", game.started, rl.GetTime())
+
 	// spawn a first building somewhere on the right side of the screen
 	first_building_x := rand.int31_max(game.screen_width / 2) + game.screen_width / 2
 	first_building := building_create_random(game, f32(first_building_x), game.started)
@@ -122,7 +122,9 @@ init_spawn :: proc(game: ^Game) {
 }
 
 reset :: proc(game: ^Game) {
+	destroy(game)
 	game^ = init(game.screen_width, game.screen_height)
+	log.debugf("game reset: %v", game)
 }
 
 // Destroys the main game struct, de-allocating all the things.
@@ -169,5 +171,9 @@ update :: proc(game: ^Game) {
 
 should_exit :: proc(game: Game) -> bool {
 	return game.state == .Exit
+}
+
+speed_multiplier :: proc(game: Game) -> f32 {
+	return GAME_SPEED_INIT / game.speed
 }
 

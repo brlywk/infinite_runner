@@ -1,7 +1,9 @@
 package game
 
-import "../assets"
+import "../global"
+import "../global/scaling"
 import "core:log"
+import "core:math"
 import "core:math/rand"
 import rl "vendor:raylib"
 
@@ -36,13 +38,11 @@ Obstacle :: struct {
 
 
 obstacle_create_random :: proc(game: ^Game, time: f64) -> Obstacle {
-	asset_cache := (^Asset_Cache)(context.user_ptr)
-
 	texture_name := rand.choice(obstacle_names)
-	texture := assets.get(asset_cache, texture_name)
+	texture := global.get_asset(texture_name)
 	floor_y := y_floored(game^)
 
-	return Obstacle {
+	new_obstacle := Obstacle {
 		texture = texture,
 		rect = Rect {
 			x = f32(game.screen_width) + 2,
@@ -52,6 +52,9 @@ obstacle_create_random :: proc(game: ^Game, time: f64) -> Obstacle {
 		},
 		spawn_time = time,
 	}
+
+	log.debugf("obstacle_create_random: %v", new_obstacle)
+	return new_obstacle
 }
 
 playing_obstacle_spawn :: proc(game: ^Game, dt: f32) {
@@ -62,15 +65,11 @@ playing_obstacle_spawn :: proc(game: ^Game, dt: f32) {
 
 	// scale spawning with game speed to avoid gaps
 	spawn_speed_factor := game.speed / GAME_SPEED_INIT
-	scaled_min := f64(OBSTACLE_SPAWN_SECONDS_MIN / spawn_speed_factor)
-	scaled_max := f64(OBSTACLE_SPAWN_SECONDS_MAX / spawn_speed_factor)
+	dampened_spawn_speed_factor := 1.0 + math.ln(spawn_speed_factor) * scaling.FACTOR.obstacle
+	scaled_min := f64(OBSTACLE_SPAWN_SECONDS_MIN / dampened_spawn_speed_factor)
+	scaled_max := f64(OBSTACLE_SPAWN_SECONDS_MAX / dampened_spawn_speed_factor)
 
-
-	// TODO: We need to scale obstacle spawning at a lower rate than directly 
-	// proportional to game speed, otherwise it becomes increasingly impossible
-	// to jump between gaps; alternatively increase jump speed and gravity to get
-	// player "down to earth" a lot quicker with time
-	now := rl.GetTime() - game.started
+	now := rl.GetTime()
 	rng := rand.float64_range(scaled_min, scaled_max)
 
 	if now >= last_spawned.spawn_time + rng {

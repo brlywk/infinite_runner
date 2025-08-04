@@ -40,8 +40,8 @@ playing_update :: proc(game: ^Game) {
 	playing_handle_collision(game, dt)
 
 	// player
-	floor_y := y_floored(game^)
-	player_update(&game.player, floor_y, dt, game.speed)
+	player_play_sound(&game.player, game^)
+	player_update(&game.player, game^, y_floored(game^), dt)
 
 	// game distance ("score")
 	playing_update_score(game, dt)

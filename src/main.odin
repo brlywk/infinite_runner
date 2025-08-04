@@ -1,12 +1,12 @@
 package main
 
-import "assets"
 import "base:runtime"
 import "core:log"
 import "core:math/rand"
 import "core:mem"
 import "core:time"
 import "game"
+import "global"
 import rl "vendor:raylib"
 
 // 
@@ -80,17 +80,10 @@ main :: proc() {
 
 	// GAME INIT
 	//
-	// asset cache
-	asset_cache := assets.cache_init()
-	defer assets.cache_destroy(&asset_cache)
-	// we need assets everywhere, so let's make the completly sane decision to
-	// save a reference to the asset_cache in our implicit context struct...
-	// what could ever go wrong?
-	context.user_ptr = &asset_cache
-
-	// set default font
-	default_font := assets.get(&asset_cache, assets.Font_Name.Independent_Modern)
-	rl.GuiSetFont(default_font)
+	// global context
+	global_ctx := global.init_context()
+	defer global.destroy_context(&global_ctx)
+	context.user_ptr = &global_ctx
 
 	// main game struct
 	gg := game.init(GAME_WIDTH, GAME_HEIGHT)

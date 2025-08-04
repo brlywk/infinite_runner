@@ -1,7 +1,11 @@
 package game
 
-import "../assets"
+import "../global"
+import "../global/assets"
+import "../global/scaling"
 import "core:log"
+import "core:math"
+import "core:math/rand"
 import rl "vendor:raylib"
 
 
@@ -17,6 +21,7 @@ player_animations := [Player_State]Animation_Name {
 }
 
 // possible footstep sounds for player movement
+@(rodata)
 player_footstep_sounds := []Sound_Name{.Step_01, .Step_02, .Step_03, .Step_04, .Step_05}
 
 
@@ -30,12 +35,12 @@ Player_State :: enum {
 
 
 Player :: struct {
-	using hitbox:     Rect, // for a better game feel, the hitbox should be smaller than the sprite
-	velocity:         Vec2,
-	state:            Player_State,
-	prev_state:       Player_State,
-	health:           u8,
-	speed_multiplier: f32,
+	using hitbox:        Rect, // for a better game feel, the hitbox should be smaller than the sprite
+	velocity:            Vec2,
+	state:               Player_State,
+	prev_state:          Player_State,
+	health:              u8,
+	last_footstep_sound: f64,
 }
 
 
@@ -64,13 +69,15 @@ player_init :: proc(pos: Vec2, state: Player_State) -> Player {
 		prev_state = state,
 		hitbox = hitbox,
 		health = PLAYER_INITIAL_HEALTH,
-		speed_multiplier = 1.0,
 	}
 }
 
-player_update :: proc(player: ^Player, floor_y: f32, dt: f32, game_speed: f32) {
-	// set current speed modifier
-	player_update_speed_mod(player, game_speed)
+// Update the player.
+//
+// Note: Yes, player is part of game as well, but to keep the "player API" consistent,
+// the player parameter is still there.
+player_update :: proc(player: ^Player, game: Game, floor_y: f32, dt: f32) {
+	player.prev_state = player.state
 
 	// player jumping
 	if rl.IsKeyDown(.SPACE) && player.state not_in PLAYER_NO_JUMPING_STATES {
@@ -79,8 +86,12 @@ player_update :: proc(player: ^Player, floor_y: f32, dt: f32, game_speed: f32) {
 		player.velocity.y -= PLAYER_JUMP_FORCE
 	}
 
-	// gravity, as always, is dragging everyone down
-	player.velocity.y += PLAYER_GRAVITY * dt
+	// gravity, as always, is dragging everyone down;
+	// as with other things, logarithmically scale gravity to have the player fall faster
+	// with increased game speed
+	gravity_scaling := 1.0 + math.ln(game.speed / GAME_SPEED_INIT) * scaling.FACTOR.gravity
+	gravity := PLAYER_GRAVITY * gravity_scaling * dt
+	player.velocity.y += gravity
 	player.y += player.velocity.y * dt
 
 	// floor collision detection
@@ -93,23 +104,16 @@ player_update :: proc(player: ^Player, floor_y: f32, dt: f32, game_speed: f32) {
 		player.y = floor_y - player.height
 		player.velocity.y = 0
 	}
-
-	// NOTE: Collision detection is done in:
-	// state_playing_draw.odin -> playing_check_player_collision()
 }
 
-// Adjusts the current speed modifier using the current game speed.
-player_update_speed_mod :: proc(player: ^Player, game_speed: f32) {
-	player.speed_multiplier = game_speed / GAME_SPEED_INIT
-}
 
 // Returns if the current player animation has finished playing.
-player_draw :: proc(player: Player, freeze_animation := false) -> bool {
+player_draw :: proc(player: Player, game: Game, freeze_animation := false) -> bool {
 	animation := player_get_animation(player)
 	animation_ended := assets.animation_play(
 		animation,
 		player,
-		player.speed_multiplier,
+		speed_multiplier(game),
 		freeze_animation,
 		// tint the player animation sprite red while in "hurt" state for
 		// better visual feedback (and many new bugs to fix :P)
@@ -125,9 +129,8 @@ player_draw :: proc(player: Player, freeze_animation := false) -> bool {
 }
 
 player_get_animation_for_state :: proc(state: Player_State) -> ^Animation {
-	asset_cache := (^Asset_Cache)(context.user_ptr)
 	animation_name := player_animations[state]
-	return assets.get(asset_cache, animation_name)
+	return global.get_asset(animation_name)
 }
 
 // Retrieves the appropriate animation for the player from the asset cache,
@@ -161,5 +164,47 @@ player_change_state :: proc(player: ^Player, new_state: Player_State, loc := #ca
 
 	log.debug("player state change requested from:", loc)
 	log.debugf("player state change: old=%v new=%v", player.prev_state, new_state)
+}
+
+player_play_sound :: proc(player: ^Player, game: Game) {
+	sound: assets.Sound
+
+	switch player.state {
+	case .Running:
+		foot_step := rand.choice(player_footstep_sounds)
+		sound = global.get_asset(foot_step)
+
+	case .Jumping:
+		sound = global.get_asset(Sound_Name.Jump)
+
+	case .Hurt, .Dead:
+		sound = global.get_asset(Sound_Name.Hit)
+
+	case .Attacking:
+		sound = global.get_asset(Sound_Name.Attack)
+	}
+
+	volume := global.sound_volume(sound)
+	rl.SetSoundVolume(sound.rl_sound, volume)
+
+	// for any other sound than running:
+	// play it immediately
+	if player.state != .Running && player.state != player.prev_state {
+		log.debugf("Play sound for state: %v", player.state)
+		rl.PlaySound(sound.rl_sound)
+		return
+	}
+
+	// for running sounds, check if we should play a new footstep
+	// sound already
+	now := rl.GetTime() - game.started
+	// we need some logarithmic dampening as linear scaling sounds... wrong
+	audio_scaling := 1.0 + math.ln(speed_multiplier(game)) * scaling.FACTOR.sound
+	footstep_every := PLAYER_INITIAL_FOOTSTEP_INTERVAL * audio_scaling
+	if now > player.last_footstep_sound + f64(footstep_every) && player.state == .Running {
+		log.debugf("Play running sound: footstep_every=%v", footstep_every)
+		rl.PlaySound(sound.rl_sound)
+		player.last_footstep_sound = now
+	}
 }
 

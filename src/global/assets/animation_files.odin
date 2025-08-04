@@ -19,7 +19,7 @@ Animation_Name :: enum {
 
 animations := [Animation_Name]Asset {
 	.Player_Run = {
-		data = #load("../../assets/sprites/player/16x18_player_run.png"),
+		data = #load("../../../assets/sprites/player/16x18_player_run.png"),
 		type = Animation_Info {
 			num_frames = 8,
 			frame_width = 16,
@@ -29,7 +29,7 @@ animations := [Animation_Name]Asset {
 		},
 	},
 	.Player_Jump = {
-		data = #load("../../assets/sprites/player/16x22_player_jump.png"),
+		data = #load("../../../assets/sprites/player/16x22_player_jump.png"),
 		type = Animation_Info {
 			num_frames = 4,
 			frame_width = 16,
@@ -39,7 +39,7 @@ animations := [Animation_Name]Asset {
 		},
 	},
 	.Player_Hurt = {
-		data = #load("../../assets/sprites/player/16x16_player_hurt.png"),
+		data = #load("../../../assets/sprites/player/16x16_player_hurt.png"),
 		type = Animation_Info {
 			num_frames = 3,
 			frame_width = 16,
@@ -49,7 +49,7 @@ animations := [Animation_Name]Asset {
 		},
 	},
 	.Player_Dead = {
-		data = #load("../../assets/sprites/player/21x15_player_dead.png"),
+		data = #load("../../../assets/sprites/player/21x15_player_dead.png"),
 		type = Animation_Info {
 			num_frames = 5,
 			frame_width = 21,

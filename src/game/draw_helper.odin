@@ -1,6 +1,6 @@
 package game
 
-import "../assets"
+import "../global"
 import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
@@ -8,8 +8,7 @@ import rl "vendor:raylib"
 
 // Retrieves the default from the asset cache.
 get_default_font :: proc() -> rl.Font {
-	asset_cache := (^assets.Cache)(context.user_ptr)
-	return assets.get(asset_cache, FONT_NAME_DEFAULT)
+	return global.get_asset(FONT_NAME_DEFAULT)
 }
 
 get_screen_center :: proc(game: Game) -> Vec2 {

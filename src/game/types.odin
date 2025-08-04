@@ -1,6 +1,6 @@
 package game
 
-import "../assets"
+import "../global/assets"
 import rl "vendor:raylib"
 
 // raylib

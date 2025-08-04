@@ -1,5 +1,7 @@
 package assets
 
+import "../scaling"
+import "core:math"
 import rl "vendor:raylib"
 
 // 
@@ -72,9 +74,10 @@ animation_play :: proc(
 
 	animation.timer += rl.GetFrameTime()
 
+	frame_speed_scaling := 1.0 + math.ln(speed_modifier) * scaling.FACTOR.animation
 	frame_time :=
-		animation.animation_info.duration /
-		(f32(animation.animation_info.num_frames) * speed_modifier)
+		(animation.animation_info.duration * frame_speed_scaling) /
+		f32(animation.animation_info.num_frames)
 	target_frame := int(animation.timer / frame_time)
 
 	if animation.animation_info.repeats {

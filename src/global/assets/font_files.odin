@@ -8,7 +8,7 @@ Font_Name :: enum {
 
 fonts := [Font_Name]Asset {
 	.Independent_Modern = {
-		data = #load("../../assets/fonts/independent_modern.ttf"),
+		data = #load("../../../assets/fonts/independent_modern.ttf"),
 		type = Font{default_font_size = FONT_DEFAULT_SIZE},
 	},
 }

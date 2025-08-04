@@ -16,13 +16,14 @@ building_create_random :: proc(game: ^Game, x: f32, time: f64) -> Building {
 	texture := rand.choice(game.building_assets[:])
 	floor_y := y_floored(game^)
 
-	log.debug("building.texture=", texture)
-
-	return Building {
-		texture = texture,
-		pos = Vec2{x, floor_y - f32(texture.height)},
+	new_building := Building {
+		texture    = texture,
+		pos        = Vec2{x, floor_y - f32(texture.height)},
 		spawn_time = time,
 	}
+
+	log.debugf("building_create_random: %v", new_building)
+	return new_building
 }
 
 @(private = "file")
@@ -39,9 +40,15 @@ playing_spawn_building :: proc(game: ^Game, dt: f32) {
 	scaled_min := f64(BUILDING_SPAWN_SECONDS_MIN / spawn_speed_factor)
 	scaled_max := f64(BUILDING_SPAWN_SECONDS_MAX / spawn_speed_factor)
 
-	now := rl.GetTime() - game.started
+	now := rl.GetTime()
 	rng := rand.float64_range(scaled_min, scaled_max)
 
+	// log.debugf(
+	// 	"playing_spawn_building: now=%v last_spawned=%v rng=%v",
+	// 	now,
+	// 	last_spawned.spawn_time,
+	// 	rng,
+	// )
 	if now >= last_spawned.spawn_time + rng {
 		// add small gap for more randomness
 		gap := rand.float32_range(BUILDING_SPAWN_GAP_MIN, BUILDING_SPAWN_GAP_MAX)

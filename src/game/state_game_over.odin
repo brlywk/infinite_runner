@@ -1,7 +1,6 @@
 package game
 
 import "core:fmt"
-import "core:log"
 import "core:math/linalg"
 // import "core:log"
 import rl "vendor:raylib"
@@ -14,14 +13,14 @@ game_over_draw :: proc(game: ^Game) {
 		playing_draw_floor(game^)
 		playing_draw_building(game^)
 		playing_draw_obstacles(game^)
-		player_draw(game.player)
+		player_draw(game.player, game^)
 	}
 
 	// draw the final screen
 	dt := rl.GetFrameTime()
 
 	playing_draw_background(game^)
-	player_draw(game.player)
+	player_draw(game.player, game^)
 
 	// only who the UI once the animation is done
 	if !game_over_move_player(game, dt) do return
@@ -55,12 +54,6 @@ game_over_move_player :: proc(game: ^Game, dt: f32) -> (done: bool) {
 	player_half_size := vec2_round_to_pixel(player_get_sprite_size(game.player) / 2)
 	player_pos := player_get_pos(game.player)
 	target_pos := get_screen_center_nearest(game^) - player_half_size
-	log.debugf(
-		"target_pos=%v player_pos=%v player_half_size=%v",
-		target_pos,
-		player_pos,
-		player_half_size,
-	)
 
 	// early out
 	if player_pos == target_pos do return true
