@@ -107,7 +107,7 @@ playing_update_obstacles :: proc(game: ^Game, dt: f32) {
 }
 
 obstacle_draw :: proc(obstacle: Obstacle) {
-	rl.DrawTexture(obstacle.texture, i32(obstacle.x), i32(obstacle.y), rl.WHITE)
+	rl.DrawTextureV(obstacle.texture, Vec2{obstacle.x, obstacle.y}, rl.WHITE)
 
 	when ODIN_DEBUG {
 		rl.DrawRectangleLinesEx(obstacle, 1.0, rl.RED)
