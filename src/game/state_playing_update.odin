@@ -46,9 +46,7 @@ playing_update :: proc(game: ^Game) {
 	// game distance ("score")
 	playing_update_score(game, dt)
 
-
-	// TODO:
-	// slightly increase game speed (capped to a max) based on distance
+	// update game speed based on distance travelled
 	playing_update_game_speed(game)
 
 	// cleanup

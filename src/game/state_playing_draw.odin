@@ -22,7 +22,6 @@ playing_draw :: proc(game: ^Game) {
 	// player
 	is_paused := game.state == .Paused
 	player_draw(game.player, game^, is_paused)
-	// TODO: Small particle system at players feet when running
 
 	// ui
 	playing_draw_ui(game^)

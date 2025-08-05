@@ -41,6 +41,7 @@ Player :: struct {
 	prev_state:          Player_State,
 	health:              u8,
 	last_footstep_sound: f64,
+	running_dust:        Particle_System,
 }
 
 
@@ -69,6 +70,7 @@ player_init :: proc(pos: Vec2, state: Player_State) -> Player {
 		prev_state = state,
 		hitbox = hitbox,
 		health = PLAYER_INITIAL_HEALTH,
+		running_dust = particle_system_create(DUST_PARTICLE_OPTION, PLAYER_RUNNING_DUST_PARTICLES),
 	}
 }
 
@@ -78,6 +80,15 @@ player_init :: proc(pos: Vec2, state: Player_State) -> Player {
 // the player parameter is still there.
 player_update :: proc(player: ^Player, game: Game, floor_y: f32, dt: f32) {
 	player.prev_state = player.state
+
+	// update particle system; draw first to be behind player sprite
+	if player.state == .Running {
+		player_feet_pos := Vec2 {
+			player.x + player.width / 2 + PLAYER_RUNNING_DUST_X_OFFSET,
+			player.y + player.height,
+		}
+		particle_system_update(&player.running_dust, player_feet_pos, dt)
+	}
 
 	// player jumping
 	if rl.IsKeyDown(.SPACE) && player.state not_in PLAYER_NO_JUMPING_STATES {
@@ -104,6 +115,11 @@ player_update :: proc(player: ^Player, game: Game, floor_y: f32, dt: f32) {
 		player.y = floor_y - player.height
 		player.velocity.y = 0
 	}
+
+}
+
+player_destroy :: proc(player: ^Player) {
+	particle_system_destroy(&player.running_dust)
 }
 
 
@@ -119,6 +135,11 @@ player_draw :: proc(player: Player, game: Game, freeze_animation := false) -> bo
 		// better visual feedback (and many new bugs to fix :P)
 		player.state == .Hurt ? rl.RED : rl.WHITE,
 	)
+
+	// draw particle effect
+	if player.state == .Running {
+		particle_system_draw(player.running_dust)
+	}
 
 	// draw collision rectangle for player in debug mode
 	when ODIN_DEBUG {

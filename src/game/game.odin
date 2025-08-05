@@ -93,6 +93,8 @@ init :: proc(width, height: i32) -> Game {
 	// spawn some initial stuff
 	init_spawn(&game)
 
+	log.debug("game init:", game)
+
 	return game
 }
 
@@ -132,6 +134,9 @@ destroy :: proc(game: ^Game) {
 	// free dynamically allocated fields
 	delete(game.obstacles)
 	delete(game.buildings)
+
+	// destroy player (as it has a particle system with a dynamic array)
+	player_destroy(&game.player)
 
 	// Note: game.backgrounds is a slice based on an array living on the stack, hence
 	// no deletion needed

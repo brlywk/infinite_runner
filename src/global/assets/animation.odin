@@ -78,11 +78,16 @@ animation_play :: proc(
 	frame_time :=
 		(animation.animation_info.duration * frame_speed_scaling) /
 		f32(animation.animation_info.num_frames)
+
+	scaled_duration := animation.animation_info.duration * frame_speed_scaling
 	target_frame := int(animation.timer / frame_time)
 
 	if animation.animation_info.repeats {
 		animation.current_frame = target_frame % animation.animation_info.num_frames
-		if animation.timer >= animation.animation_info.duration do animation.timer = 0.0
+		// we could remove the line below and let the timer grow indefinitly, but that would cause an overflow
+		// at some point close to the heat death of the universe... which we absolutly can't risk!
+		// (also we lose precision after half a year of playing... but that's neither here nor there...)
+		if animation.timer >= scaled_duration do animation.timer = 0.0
 	} else {
 		if target_frame >= animation.animation_info.num_frames {
 			animation.current_frame = int(animation.animation_info.num_frames) - 1

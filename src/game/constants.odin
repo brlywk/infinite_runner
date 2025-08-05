@@ -54,6 +54,8 @@ PLAYER_GRAVITY :: 800.0
 // I now understand why so many say bit_sets are a seriously cool feature ;)
 PLAYER_VULNERABLE_STATES :: bit_set[Player_State]{.Running, .Jumping}
 PLAYER_NO_JUMPING_STATES :: bit_set[Player_State]{.Jumping, .Hurt, .Dead}
+PLAYER_RUNNING_DUST_PARTICLES :: 10
+PLAYER_RUNNING_DUST_X_OFFSET :: 2
 
 UI_SCORE_POS :: Vec2{4.0, 4.0}
 UI_SCORE_FONT_SIZE :: 8.0
