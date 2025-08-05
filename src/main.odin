@@ -80,8 +80,11 @@ main :: proc() {
 
 	// GAME INIT
 	//
+	// settings
+	game_settings := global.settings_load()
+
 	// global context
-	global_ctx := global.init_context()
+	global_ctx := global.init_context(game_settings)
 	defer global.destroy_context(&global_ctx)
 	context.user_ptr = &global_ctx
 

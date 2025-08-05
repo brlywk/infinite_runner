@@ -49,3 +49,6 @@ desktop.ini
 
 # Core dumps
 core
+
+# Settings
+settings.json

@@ -10,12 +10,8 @@ Context :: struct {
 	settings: Settings,
 }
 
-init_context :: proc() -> Context {
-	return Context {
-		assets = assets.cache_init(),
-		// TODO: Load from saved settings (json?)
-		settings = Settings{volume_master = 1.0, volume_music = 1.0, volume_sound = 1.0},
-	}
+init_context :: proc(settings: Settings) -> Context {
+	return Context{assets = assets.cache_init(), settings = settings}
 }
 
 destroy_context :: proc(global_ctx: ^Context) {
