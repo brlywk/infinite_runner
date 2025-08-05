@@ -26,6 +26,7 @@ Game :: struct {
 	state:             Game_State,
 	distance:          i32,
 	started:           f64,
+	game_time:         f64,
 
 	// game entities
 	player:            Player,
@@ -66,6 +67,7 @@ init :: proc(width, height: i32) -> Game {
 		speed = GAME_SPEED_INIT,
 		distance = 0,
 		started = started,
+		game_time = 0,
 
 		// game entities
 		player = init_player(width, height, floor.height),

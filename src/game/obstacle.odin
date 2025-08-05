@@ -59,7 +59,18 @@ obstacle_create_random :: proc(game: ^Game, time: f64) -> Obstacle {
 
 playing_obstacle_spawn :: proc(game: ^Game, dt: f32) {
 	num_obstacles := len(game.obstacles)
-	if num_obstacles == 0 do return
+
+	now := game.game_time
+
+	if num_obstacles == 0 {
+		// depending on game speed we can potentially remove all obstacles before
+		// new ones get spawned (especially at higher game speeds), so always add
+		// an obstacle in when the slice is empty
+		safety_obstacle := obstacle_create_random(game, now)
+		log.debugf("no obstacle found, force spawning at (raw) distance: %d", game.distance)
+		append(&game.obstacles, safety_obstacle)
+		return
+	}
 
 	last_spawned := game.obstacles[num_obstacles - 1]
 
@@ -69,10 +80,10 @@ playing_obstacle_spawn :: proc(game: ^Game, dt: f32) {
 	scaled_min := f64(OBSTACLE_SPAWN_SECONDS_MIN / dampened_spawn_speed_factor)
 	scaled_max := f64(OBSTACLE_SPAWN_SECONDS_MAX / dampened_spawn_speed_factor)
 
-	now := rl.GetTime()
 	rng := rand.float64_range(scaled_min, scaled_max)
+	time_since_last_spawn := now - last_spawned.spawn_time
 
-	if now >= last_spawned.spawn_time + rng {
+	if time_since_last_spawn >= rng {
 		// always spawn obstacles just outside the right screen bounds
 		new_obstacle := obstacle_create_random(game, now)
 		log.debugf(

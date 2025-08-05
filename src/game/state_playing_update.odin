@@ -4,6 +4,10 @@ import "core:log"
 import "core:math"
 import rl "vendor:raylib"
 
+// Debug flags
+// usage: odin run. -debug -define:NO_COLLISION=true
+NO_COLLISION :: #config(NO_COLLISION, false)
+
 
 // TODO: Bug fixes:
 // - pausing the game does not pause the obstacle spawn timer, so obstacles
@@ -22,7 +26,12 @@ playing_update :: proc(game: ^Game) {
 		game.state = .Game_Over
 	}
 
+	// we need to use our own game time so pausing the game
+	// doesn't mess up time based events (e.g. obstacle spawning)
 	dt := rl.GetFrameTime()
+	if game.state == .Playing {
+		game.game_time += f64(dt)
+	}
 
 	// background
 	playing_update_background(game, dt)
@@ -37,7 +46,9 @@ playing_update :: proc(game: ^Game) {
 	playing_update_obstacles(game, dt)
 
 	// check collision between player and obstacles
-	playing_handle_collision(game, dt)
+	when !(ODIN_DEBUG && NO_COLLISION) {
+		playing_handle_collision(game, dt)
+	}
 
 	// player
 	player_play_sound(&game.player, game^)

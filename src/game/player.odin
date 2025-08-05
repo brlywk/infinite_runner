@@ -115,7 +115,6 @@ player_update :: proc(player: ^Player, game: Game, floor_y: f32, dt: f32) {
 		player.y = floor_y - player.height
 		player.velocity.y = 0
 	}
-
 }
 
 player_destroy :: proc(player: ^Player) {
