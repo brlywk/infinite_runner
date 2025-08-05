@@ -120,14 +120,16 @@ main :: proc() {
 			window_width := f32(rl.GetScreenWidth())
 			window_height := f32(rl.GetScreenHeight())
 			scale := min(window_width / GAME_WIDTH, window_height / GAME_HEIGHT)
+			scaled_width := GAME_WIDTH * scale
+			scaled_height := GAME_HEIGHT * scale
 
 			// rect to use for upscaling
 			// TODO: When entering fullscreen, this needs to be centered
 			render_rect := Rect {
-				x      = 0,
+				x      = (window_width - scaled_width) / 2,
 				y      = 0,
-				width  = GAME_WIDTH * scale,
-				height = GAME_HEIGHT * scale,
+				width  = scaled_width,
+				height = scaled_height,
 			}
 
 			// rect to use for flipping the render texture b/c OpenGL
@@ -140,6 +142,21 @@ main :: proc() {
 
 			rl.ClearBackground(rl.BLACK)
 			rl.DrawTexturePro(render_target.texture, flip_rect, render_rect, {0, 0}, 0.0, rl.WHITE)
+
+			// in fullscreen, draw a nice little border around the render texture
+			if scaled_width < window_width {
+				border_thickness := 2.0 * scale
+				border_color := rl.Color{227, 141, 24, 255}
+
+				border_rect := Rect {
+					x      = render_rect.x - border_thickness,
+					y      = 0,
+					width  = render_rect.width + border_thickness * 2,
+					height = render_rect.height + border_thickness * 2,
+				}
+
+				rl.DrawRectangleLinesEx(border_rect, border_thickness, border_color)
+			}
 		}
 	}
 }
