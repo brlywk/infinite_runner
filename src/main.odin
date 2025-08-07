@@ -20,8 +20,6 @@ Rect :: rl.Rectangle
 // Constants
 //
 
-WINDOW_NAME :: "Infinite Runner"
-
 // resolution the game should be rendered with
 GAME_WIDTH :: 320
 GAME_HEIGHT :: 240
@@ -61,7 +59,7 @@ main :: proc() {
 
 	// RAYLIB
 	//
-	rl.InitWindow(GAME_WIDTH * INIT_SCALING, GAME_HEIGHT * INIT_SCALING, WINDOW_NAME)
+	rl.InitWindow(GAME_WIDTH * INIT_SCALING, GAME_HEIGHT * INIT_SCALING, game.GAME_TITLE)
 	defer rl.CloseWindow()
 
 	rl.InitAudioDevice()

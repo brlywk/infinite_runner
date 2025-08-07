@@ -13,6 +13,7 @@ import rl "vendor:raylib"
 // b/c the game's architecture might be questionable at best and collapse at any moment,
 // but when it does, it will collapse FAST :P
 player_animations := [Player_State]Animation_Name {
+	.Idle      = .Player_Idle,
 	.Running   = .Player_Run,
 	.Jumping   = .Player_Jump,
 	.Attacking = nil, // TODO: Add back in
@@ -26,6 +27,7 @@ player_footstep_sounds := []Sound_Name{.Step_01, .Step_02, .Step_03, .Step_04, .
 
 
 Player_State :: enum {
+	Idle,
 	Running,
 	Jumping,
 	Attacking,
@@ -189,7 +191,9 @@ player_change_state :: proc(player: ^Player, new_state: Player_State, loc := #ca
 player_play_sound :: proc(player: ^Player, game: Game) {
 	sound: assets.Sound
 
-	switch player.state {
+	#partial switch player.state {
+	// .Idle has no sound to play
+
 	case .Running:
 		foot_step := rand.choice(player_footstep_sounds)
 		sound = global.get_asset(foot_step)

@@ -8,7 +8,6 @@ import rl "vendor:raylib"
 
 // Current game state identifier.
 Game_State :: enum {
-	// Loading,
 	Menu,
 	Playing,
 	Paused,
@@ -37,6 +36,9 @@ Game :: struct {
 	floor:             Background, // just one floor type for now
 	background_assets: [BACKGROUND_LAYERS]Background,
 	building_assets:   [BUILDING_NUM]Texture,
+
+	// menu
+	menu:              Menu,
 }
 
 Background :: struct {
@@ -90,6 +92,9 @@ init :: proc(width, height: i32) -> Game {
 			global.get_asset(Texture_Name.Building_04),
 			global.get_asset(Texture_Name.Building_05),
 		},
+
+		// menu
+		menu = menu_init(),
 	}
 
 	// spawn some initial stuff

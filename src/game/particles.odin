@@ -1,6 +1,5 @@
 package game
 
-import "core:log"
 import "core:math"
 import "core:math/rand"
 import rl "vendor:raylib"

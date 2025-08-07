@@ -2,6 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
+GAME_TITLE :: "GWYR Infinite" // Game Where You Run
 
 BACKGROUND_NAMES :: [?]Texture_Name {
 	Texture_Name.Backround_01,
@@ -32,7 +33,7 @@ FONT_SHADOW_COLOR :: rl.Color{0, 0, 0, 222}
 FONT_SHADOW_COLOR_ON_BLACK :: rl.Color{66, 66, 66, 255}
 FONT_SHADOW_OFFSET :: Vec2{1.0, 1.0}
 
-GAME_INITIAL_STATE :: Game_State.Playing
+GAME_INITIAL_STATE :: Game_State.Menu
 GAME_PIXELS_PER_POINT :: 10
 GAME_SPEED_INIT :: 100.0
 GAME_SPEED_MAX :: 400.0

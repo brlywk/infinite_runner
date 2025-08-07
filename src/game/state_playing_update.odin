@@ -21,6 +21,11 @@ playing_update :: proc(game: ^Game) {
 		game.state = .Paused
 	}
 
+	// allow for instant restart
+	if rl.IsKeyPressed(.R) {
+		reset(game)
+	}
+
 	// check if the game should be over 
 	if game.player.state == .Dead {
 		game.state = .Game_Over

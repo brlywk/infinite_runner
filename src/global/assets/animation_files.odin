@@ -1,5 +1,6 @@
 package assets
 
+PLAYER_IDLE_ANIMATION_DURATION :: 0.75
 PLAYER_RUN_ANIMATION_DURATION :: 0.5
 PLAYER_JUMP_ANIMATION_DURATION :: 0.25
 PLAYER_HURT_ANIMATION_DURATION :: 0.5
@@ -8,7 +9,7 @@ PLAYER_DEATH_ANIMATION_DURATION :: 0.5
 
 Animation_Name :: enum {
 	// Player sprites
-	// Player_Idle,
+	Player_Idle,
 	Player_Run,
 	Player_Jump,
 	Player_Hurt,
@@ -18,6 +19,16 @@ Animation_Name :: enum {
 
 
 animations := [Animation_Name]Asset {
+	.Player_Idle = {
+		data = #load("../../../assets/sprites/player/16x17_player_idle.png"),
+		type = Animation_Info {
+			num_frames = 6,
+			frame_width = 16,
+			frame_height = 17,
+			duration = PLAYER_IDLE_ANIMATION_DURATION,
+			repeats = true,
+		},
+	},
 	.Player_Run = {
 		data = #load("../../../assets/sprites/player/16x18_player_run.png"),
 		type = Animation_Info {
