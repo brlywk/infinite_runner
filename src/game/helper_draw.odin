@@ -96,3 +96,9 @@ draw_raw_distance :: proc(game: Game) {
 
 }
 
+// Small utility to indicate that this Vec2 will be centered, so the x-coordinate
+// is irrelevant (and will be set to 0).
+vec2_center :: proc(y: f32) -> Vec2 {
+	return {0, y}
+}
+

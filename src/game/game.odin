@@ -1,7 +1,6 @@
 package game
 
 import "../global"
-import "core:log"
 import "core:math/rand"
 import rl "vendor:raylib"
 
@@ -47,6 +46,18 @@ Background :: struct {
 	scroll_offset: f32,
 }
 
+// Some important pre-everything initializations, mostly required global variables.
+init :: proc() {
+	// set global default UI font
+	ui_font_default = UI_Font {
+		face         = get_default_font(),
+		size         = FONT_SIZE_DEFAULT,
+		color        = FONT_COLOR_DEFAULT,
+		shadow       = true,
+		shadow_color = FONT_SHADOW_COLOR_ON_BLACK, // we use this one as UI will mostly draw on something dark
+	}
+}
+
 
 // Creates the main game struct.
 //
@@ -54,7 +65,7 @@ Background :: struct {
 //  - width, height: Dimensions of the render texture the game is rendered to.
 //
 // Returns: Initialized Game struct.
-init :: proc(width, height: i32) -> Game {
+create :: proc(width, height: i32) -> Game {
 	// floor
 	floor := global.get_asset(Texture_Name.Floor)
 
@@ -94,13 +105,11 @@ init :: proc(width, height: i32) -> Game {
 		},
 
 		// menu
-		menu = menu_init(),
+		menu = menu_init(f32(width), f32(height)),
 	}
 
 	// spawn some initial stuff
 	init_spawn(&game)
-
-	log.debug("game init:", game)
 
 	return game
 }
@@ -117,8 +126,6 @@ init_player :: proc(width, height, floor_height: i32) -> Player {
 }
 
 init_spawn :: proc(game: ^Game) {
-	log.debugf("init_spawn: game.startet=%v current_time=%v", game.started, rl.GetTime())
-
 	// spawn a first building somewhere on the right side of the screen
 	first_building_x := rand.int31_max(game.screen_width / 2) + game.screen_width / 2
 	first_building := building_create_random(game, f32(first_building_x), game.started)
@@ -132,8 +139,7 @@ init_spawn :: proc(game: ^Game) {
 
 reset :: proc(game: ^Game) {
 	destroy(game)
-	game^ = init(game.screen_width, game.screen_height)
-	log.debugf("game reset: %v", game)
+	game^ = create(game.screen_width, game.screen_height)
 }
 
 // Destroys the main game struct, de-allocating all the things.
@@ -144,6 +150,9 @@ destroy :: proc(game: ^Game) {
 
 	// destroy player (as it has a particle system with a dynamic array)
 	player_destroy(&game.player)
+
+	// destroy menus
+	menu_destroy(&game.menu)
 
 	// Note: game.backgrounds is a slice based on an array living on the stack, hence
 	// no deletion needed
@@ -177,6 +186,7 @@ update :: proc(game: ^Game) {
 	case .Game_Over:
 		game_over_update(game)
 	case .Menu:
+		player_change_state(&game.player, .Idle)
 		menu_update(game)
 	}
 }

@@ -37,6 +37,7 @@ game_over_update :: proc(game: ^Game) {
 	case .R:
 		reset(game)
 	case .M:
+		reset(game)
 		game.state = .Menu
 	case .ESCAPE:
 		game.state = .Exit

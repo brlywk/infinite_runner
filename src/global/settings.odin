@@ -10,7 +10,6 @@ DEFAULT_SETTINGS :: Settings {
 	volume_master = 1.0,
 	volume_music  = 0.75,
 	volume_sound  = 1.0,
-	fullscreen    = false,
 }
 
 
@@ -18,7 +17,9 @@ Settings :: struct {
 	volume_master: f32,
 	volume_sound:  f32,
 	volume_music:  f32,
-	fullscreen:    bool,
+	window_width:  f32,
+	window_height: f32,
+	window_pos:    [2]f32,
 }
 
 
@@ -63,6 +64,26 @@ settings_save :: proc(settings: Settings) {
 	}
 
 	log.info("Settings saved.")
+}
+
+settings_update_window_data :: proc(
+	settings: ^Settings,
+	window_width, window_height: f32,
+	window_pos: [2]f32,
+) {
+	settings.window_width = window_width
+	settings.window_height = window_height
+	settings.window_pos = window_pos
+
+	settings_save(settings^)
+}
+
+settings_window_data_is_set :: proc(settings: Settings) -> bool {
+	return(
+		settings.window_height != 0 &&
+		settings.window_width != 0 &&
+		settings.window_pos != {0, 0} \
+	)
 }
 
 

@@ -76,10 +76,48 @@ main :: proc() {
 	rl.SetWindowState({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.SetExitKey(.KEY_NULL) // disable ESC key exiting the game
 
+
 	// GAME INIT
 	//
 	// settings
 	game_settings := global.settings_load()
+
+	// initialize scaling variables
+	window_width: f32
+	window_height: f32
+	scale: f32
+	scaled_width: f32
+	scaled_height: f32
+	window_pos: rl.Vector2
+
+	// try to load window settings, or set them to defaults
+	if global.settings_window_data_is_set(game_settings) {
+		rl.SetWindowPosition(i32(game_settings.window_pos.x), i32(game_settings.window_pos.y))
+		rl.SetWindowSize(i32(game_settings.window_width), i32(game_settings.window_height))
+
+		window_width = game_settings.window_width
+		window_height = game_settings.window_height
+		scale = min(window_width / GAME_WIDTH, window_height / GAME_HEIGHT)
+		scaled_width = GAME_WIDTH * scale
+		scaled_height = GAME_HEIGHT * scale
+		window_pos = rl.GetWindowPosition()
+	} else {
+		// initial state needs to be calculated
+		window_width = f32(rl.GetScreenWidth())
+		window_height = f32(rl.GetScreenHeight())
+		scale = min(window_width / GAME_WIDTH, window_height / GAME_HEIGHT)
+		scaled_width = GAME_WIDTH * scale
+		scaled_height = GAME_HEIGHT * scale
+		window_pos = rl.GetWindowPosition()
+
+		// save the current state
+		global.settings_update_window_data(
+			&game_settings,
+			window_width,
+			window_height,
+			{window_pos.x, window_pos.y},
+		)
+	}
 
 	// global context
 	global_ctx := global.init_context(game_settings)
@@ -87,13 +125,36 @@ main :: proc() {
 	context.user_ptr = &global_ctx
 
 	// main game struct
-	gg := game.init(GAME_WIDTH, GAME_HEIGHT)
+	game.init()
+	gg := game.create(GAME_WIDTH, GAME_HEIGHT)
 	defer game.destroy(&gg)
 
 	// GAME LOOP
 	//
 	for !rl.WindowShouldClose() {
 		defer free_all(context.temp_allocator)
+
+		// check for window changes and update scaling
+		current_width := f32(rl.GetScreenWidth())
+		current_height := f32(rl.GetScreenHeight())
+		current_pos := rl.GetWindowPosition()
+
+		if current_width != window_width ||
+		   current_height != window_height ||
+		   current_pos != window_pos {
+			window_width = current_width
+			window_height = current_height
+			scale = min(window_width / GAME_WIDTH, window_height / GAME_HEIGHT)
+			scaled_width = GAME_WIDTH * scale
+			scaled_height = GAME_HEIGHT * scale
+
+			global.settings_update_window_data(
+				&game_settings,
+				window_width,
+				window_height,
+				{current_pos.x, current_pos.y},
+			)
+		}
 
 		// UPDATE
 		game.update(&gg)
@@ -117,15 +178,7 @@ main :: proc() {
 			rl.BeginDrawing()
 			defer rl.EndDrawing()
 
-			// calculate scaling
-			window_width := f32(rl.GetScreenWidth())
-			window_height := f32(rl.GetScreenHeight())
-			scale := min(window_width / GAME_WIDTH, window_height / GAME_HEIGHT)
-			scaled_width := GAME_WIDTH * scale
-			scaled_height := GAME_HEIGHT * scale
-
 			// rect to use for upscaling
-			// TODO: When entering fullscreen, this needs to be centered
 			render_rect := Rect {
 				x      = (window_width - scaled_width) / 2,
 				y      = 0,
@@ -145,13 +198,13 @@ main :: proc() {
 			rl.DrawTexturePro(render_target.texture, flip_rect, render_rect, {0, 0}, 0.0, rl.WHITE)
 
 			// in fullscreen, draw a nice little border around the render texture
-			if scaled_width < window_width {
+			if scaled_width < window_width || scaled_height < window_height {
 				border_thickness := 2.0 * scale
 				border_color := rl.Color{227, 141, 24, 255}
 
 				border_rect := Rect {
 					x      = render_rect.x - border_thickness,
-					y      = 0,
+					y      = render_rect.y - border_thickness,
 					width  = render_rect.width + border_thickness * 2,
 					height = render_rect.height + border_thickness * 2,
 				}

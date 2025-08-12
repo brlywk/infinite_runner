@@ -9,12 +9,6 @@ import rl "vendor:raylib"
 NO_COLLISION :: #config(NO_COLLISION, false)
 
 
-// TODO: Bug fixes:
-// - pausing the game does not pause the obstacle spawn timer, so obstacles
-//      might spawn a lot closer together than intended
-//      -> maybe save a "last_pause_duration" on game and add that to the spawn calculation?
-
-
 playing_update :: proc(game: ^Game) {
 	// check for paused key being pressed (ESC)
 	if rl.IsKeyPressed(.ESCAPE) {

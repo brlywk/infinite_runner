@@ -3,6 +3,9 @@ package game
 import rl "vendor:raylib"
 
 
+// TODO: Either add controls here for resume, main menu and exit,
+// or check if "Paused" can also be implemented as a "Menu" state screen
+
 paused_update :: proc(game: ^Game) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		game.state = .Playing

@@ -99,6 +99,13 @@ player_update :: proc(player: ^Player, game: Game, floor_y: f32, dt: f32) {
 		player.velocity.y -= PLAYER_JUMP_FORCE
 	}
 
+	// prevent the player from jumping due to SPACE being pressed as a menu control,
+	// but also make sure that player starts running right after the initial key press
+	// is finished
+	if rl.IsKeyReleased(.SPACE) && player.state == .Idle {
+		player_change_state(player, .Running)
+	}
+
 	// gravity, as always, is dragging everyone down;
 	// as with other things, logarithmically scale gravity to have the player fall faster
 	// with increased game speed
