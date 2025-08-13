@@ -43,6 +43,7 @@ test_ui_widget_count_focusable :: proc(t: ^testing.T) {
 		UI_Label{},
 		UI_Slider{}, // 3
 		UI_Label{},
+		UI_Button{}, // 4
 	}
 
 	got := ui_widget_count_focusable(widgets[:])

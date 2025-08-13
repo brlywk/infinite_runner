@@ -2,8 +2,6 @@ package game
 
 menu_main_init :: proc(width, height: f32) -> Menu_Content {
 	widgets := make([dynamic]UI_Widget)
-	// buttons := make([dynamic]UI_Button)
-	// texts := make([dynamic]UI_Label)
 
 	// LABELS
 	// we will draw all menu elements centered, so x-coordinates in Vec2's are irrelevant

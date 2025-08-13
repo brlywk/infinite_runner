@@ -1,6 +1,5 @@
 package game
 
-import "../global"
 import "core:math/rand"
 import rl "vendor:raylib"
 

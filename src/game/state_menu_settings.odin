@@ -44,10 +44,20 @@ menu_settings_init :: proc(width, height: f32) -> Menu_Content {
 
 	// Sliders
 	{
-		// NOTE: Sliders cause a little bit more work because we only know the
-		// size of the toggle (for positioning) AFTER we created the toggle
+		// master volume
+		master_volume_slider := ui_slider_create(
+			"Master Volume",
+			&settings.volume_master,
+			0,
+			100,
+			5,
+			ui_slider_increment_func,
+			ui_slider_decrement_func,
+		)
+		mvs_size := ui_slider_size(master_volume_slider)
+		mvs_x := width / 2 - mvs_size.x / 2
+		ui_slider_set_pos(&master_volume_slider, {mvs_x, y})
 
-		// TODO
 	}
 
 	menu := Menu_Content {

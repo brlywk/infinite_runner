@@ -84,22 +84,30 @@ ui_button_draw :: proc(button: UI_Button, game: Game) {
 //
 
 
+UI_Slider_Func :: #type proc(
+	value_ref: ^f32,
+	min_value, max_value, step: f32,
+	value_ref_normalized: bool,
+)
+
+
 UI_Slider :: struct {
 	using control: UI_Control,
 	value_ref:     ^f32,
-	min_value:     i32,
-	max_value:     i32,
-	step:          i32,
+	min_value:     f32,
+	max_value:     f32,
+	step:          f32,
+	buttons_size:  f32,
+	increment:     UI_Slider_Func,
+	decrement:     UI_Slider_Func,
 }
 
 ui_slider_create :: proc(
 	label: cstring,
 	value_ref: ^f32,
-	min_value, max_value, step: i32,
+	min_value, max_value, step: f32,
+	increment_func, decrement_func: UI_Slider_Func,
 ) -> UI_Slider {
-	// TODO: Sliders need to create their buttons first, and probably need enter, exit, key-press
-	// callbacks :o
-
 	return UI_Slider {
 		control = UI_Control {
 			label      = label,
@@ -111,11 +119,69 @@ ui_slider_create :: proc(
 		min_value = min_value,
 		max_value = max_value,
 		step = step,
+		increment = increment_func,
+		decrement = decrement_func,
 	}
 }
 
 ui_slider_draw :: proc(slider: UI_Slider, game: Game) {
-	rl.DrawText("I'm a slider!", 16, game.screen_height / 2, 8, rl.WHITE)
+	// draw buttons: left/right or decrease/increase
+
+
+	// text
+	draw_cool_text(
+		slider.label,
+		slider.font.size,
+		{slider.rect.x, slider.rect.y}, // TODO: Adjust for buttons
+		slider.font.color,
+		slider.font.shadow_color,
+	)
+}
+
+ui_slider_size :: proc(slider: UI_Slider) -> Vec2 {
+	return {slider.rect.width, slider.rect.height}
+}
+
+ui_slider_set_pos :: proc(slider: ^UI_Slider, pos: Vec2) {
+	slider.rect.x = pos.x
+	slider.rect.y = pos.y
+}
+
+ui_slider_step_func :: proc(
+	value_ref: ^f32,
+	min_value, max_value, step: f32,
+	increment: bool,
+	value_ref_normalized := true,
+) {
+	actual_step := increment ? step : -step
+
+	if value_ref_normalized {
+		actual_value := value_ref^ * (max_value - min_value) + min_value
+
+		actual_value += actual_step
+		actual_value = clamp(actual_value, min_value, max_value)
+
+		value_ref^ = (actual_value - min_value) / (max_value - min_value)
+	} else {
+		value_ref^ += actual_step
+		value_ref^ = clamp(value_ref^, min_value, max_value)
+	}
+}
+
+ui_slider_increment_func :: proc(
+	value_ref: ^f32,
+	min_value, max_value, step: f32,
+	value_ref_normalized := true,
+) {
+	ui_slider_step_func(value_ref, min_value, max_value, step, true, value_ref_normalized)
+}
+
+ui_slider_decrement_func :: proc(
+	value_ref: ^f32,
+	min_value, max_value, step: f32,
+	value_ref_normalized := true,
+) {
+	ui_slider_step_func(value_ref, min_value, max_value, step, false, value_ref_normalized)
 }
 
 
