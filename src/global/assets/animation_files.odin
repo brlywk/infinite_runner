@@ -13,7 +13,6 @@ Animation_Name :: enum {
 	Player_Run,
 	Player_Jump,
 	Player_Hurt,
-	// Player_Attack,
 	Player_Dead,
 }
 

@@ -13,12 +13,11 @@ import rl "vendor:raylib"
 // b/c the game's architecture might be questionable at best and collapse at any moment,
 // but when it does, it will collapse FAST :P
 player_animations := [Player_State]Animation_Name {
-	.Idle      = .Player_Idle,
-	.Running   = .Player_Run,
-	.Jumping   = .Player_Jump,
-	.Attacking = nil, // TODO: Add back in
-	.Hurt      = .Player_Hurt,
-	.Dead      = .Player_Dead,
+	.Idle    = .Player_Idle,
+	.Running = .Player_Run,
+	.Jumping = .Player_Jump,
+	.Hurt    = .Player_Hurt,
+	.Dead    = .Player_Dead,
 }
 
 // possible footstep sounds for player movement
@@ -30,7 +29,6 @@ Player_State :: enum {
 	Idle,
 	Running,
 	Jumping,
-	Attacking,
 	Hurt,
 	Dead,
 }
@@ -210,9 +208,6 @@ player_play_sound :: proc(player: ^Player, game: Game) {
 
 	case .Hurt, .Dead:
 		sound = global.get_asset(Sound_Name.Hit)
-
-	case .Attacking:
-		sound = global.get_asset(Sound_Name.Attack)
 	}
 
 	volume := global.sound_volume(sound)

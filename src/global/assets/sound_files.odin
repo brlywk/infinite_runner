@@ -2,7 +2,6 @@ package assets
 
 Sound_Name :: enum {
 	// Player
-	Attack,
 	Jump,
 	Hit,
 	Step_01,
@@ -26,10 +25,6 @@ sounds := [Sound_Name]Asset {
 	.Jump = {
 		data = #load("../../../assets/sounds/player/jump_01.wav"),
 		type = Sound_Info{base_volume = 0.35},
-	},
-	.Attack = {
-		data = #load("../../../assets/sounds/player/attack_01.wav"),
-		type = Sound_Info{base_volume = 1.0},
 	},
 	.Step_01 = {
 		data = #load("../../../assets/sounds/player/step_01.wav"),

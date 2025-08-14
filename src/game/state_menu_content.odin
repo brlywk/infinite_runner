@@ -74,7 +74,6 @@ menu_content_update :: proc(game: ^Game, menu_screen: Menu_Screen) {
 	}
 
 	// menu selection
-	// TODO: adjust for sliders and toggles
 	if selected_widget, ok := ui_widget_get_focusable_at_index(
 		menu.widgets[:],
 		menu.index_selected,
