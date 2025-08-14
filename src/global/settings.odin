@@ -8,7 +8,7 @@ import "core:os"
 SETTINGS_FILE :: "settings.json"
 DEFAULT_SETTINGS :: Settings {
 	volume_master = 1.0,
-	volume_music  = 0.75,
+	volume_music  = 0.5,
 	volume_sound  = 1.0,
 }
 

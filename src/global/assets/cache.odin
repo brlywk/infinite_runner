@@ -9,6 +9,7 @@ import rl "vendor:raylib"
 FILE_TYPE_PNG :: ".png"
 FILE_TYPE_TTF :: ".ttf"
 FILE_TYPE_WAV :: ".wav"
+FILE_TYPE_MP3 :: ".mp3"
 
 
 //

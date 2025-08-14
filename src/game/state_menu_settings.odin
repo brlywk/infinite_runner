@@ -11,6 +11,10 @@ menu_settings_init :: proc(width, height: f32) -> Menu_Content {
 	custom_action: UI_Callback = proc(game: ^Game) {
 		if rl.IsKeyPressed(.ESCAPE) {
 			game.menu.current_screen = .Main
+
+			// save settings
+			settings := global.ctx().settings
+			global.settings_save(settings)
 		}
 	}
 
@@ -27,7 +31,7 @@ menu_settings_init :: proc(width, height: f32) -> Menu_Content {
 		title_label := ui_label_create("Settings", ui_font_default, vec2_center(y), 16.0)
 		append(&widgets, title_label)
 		log.debugf("settings title label: height=%f", title_label.rect.height)
-		y += title_label.rect.height + spacer
+		y += title_label.rect.height + spacer * 2
 
 		// help text at the bototm
 		font_size_help: f32 = 8.0
@@ -58,6 +62,41 @@ menu_settings_init :: proc(width, height: f32) -> Menu_Content {
 		mvs_x := width / 2 - mvs_size.x / 2
 		ui_slider_set_pos(&master_volume_slider, {mvs_x, y})
 
+		append(&widgets, master_volume_slider)
+
+		// music
+		y += mvs_size.y + spacer
+		music_volume_slider := ui_slider_create(
+			"Music Volume",
+			&settings.volume_music,
+			0,
+			100,
+			5,
+			ui_slider_increment_func,
+			ui_slider_decrement_func,
+		)
+		tvs_size := ui_slider_size(music_volume_slider)
+		tvs_x := width / 2 - tvs_size.x / 2
+		ui_slider_set_pos(&music_volume_slider, {tvs_x, y})
+
+		append(&widgets, music_volume_slider)
+
+		// sound
+		y += tvs_size.y + spacer
+		sound_volume_slider := ui_slider_create(
+			"Sound Volume",
+			&settings.volume_sound,
+			0,
+			100,
+			5,
+			ui_slider_increment_func,
+			ui_slider_decrement_func,
+		)
+		svs_size := ui_slider_size(sound_volume_slider)
+		svs_x := width / 2 - svs_size.x / 2
+		ui_slider_set_pos(&sound_volume_slider, {svs_x, y})
+
+		append(&widgets, sound_volume_slider)
 	}
 
 	menu := Menu_Content {

@@ -75,21 +75,32 @@ menu_content_update :: proc(game: ^Game, menu_screen: Menu_Screen) {
 
 	// menu selection
 	// TODO: adjust for sliders and toggles
-	if rl.IsKeyPressed(.SPACE) {
-		if selected_widget, ok := ui_widget_get_focusable_at_index(
-			menu.widgets[:],
-			menu.index_selected,
-		); ok {
-			switch &w in selected_widget {
-			case UI_Button:
+	if selected_widget, ok := ui_widget_get_focusable_at_index(
+		menu.widgets[:],
+		menu.index_selected,
+	); ok {
+		switch &w in selected_widget {
+		case UI_Button:
+			if rl.IsKeyPressed(.SPACE) {
 				play_sound(.Click)
 				w.callback(game)
-			case UI_Slider:
-			case UI_Label:
-			// do nothing
 			}
+
+		case UI_Slider:
+			// decrease value
+			if rl.IsKeyPressed(.A) || rl.IsKeyPressed(.LEFT) || rl.IsKeyPressed(.H) {
+				w.decrement(&w)
+			} else if rl.IsKeyPressed(.D) || rl.IsKeyPressed(.RIGHT) || rl.IsKeyPressed(.L) {
+				w.increment(&w)
+			} else {
+				ui_slider_unfocus(&w)
+			}
+
+		case UI_Label:
 		}
 	}
+
+
 }
 
 @(private)

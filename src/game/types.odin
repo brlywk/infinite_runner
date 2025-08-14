@@ -11,6 +11,7 @@ Texture :: rl.Texture2D
 // assets
 Asset_Cache :: assets.Cache
 Animation :: assets.Animation
+Music :: assets.Music
 
 Animation_Name :: assets.Animation_Name
 Texture_Name :: assets.Texture_Name
