@@ -9,7 +9,6 @@ import rl "vendor:raylib"
 Game_State :: enum {
 	Menu,
 	Playing,
-	Paused,
 	Game_Over,
 	Exit,
 }
@@ -168,8 +167,6 @@ draw :: proc(game: ^Game) {
 	#partial switch game.state {
 	case .Playing:
 		playing_draw(game)
-	case .Paused:
-		paused_draw(game)
 	case .Game_Over:
 		game_over_draw(game)
 	case .Menu:
@@ -181,8 +178,6 @@ update :: proc(game: ^Game) {
 	#partial switch game.state {
 	case .Playing:
 		playing_update(game)
-	case .Paused:
-		paused_update(game)
 	case .Game_Over:
 		game_over_update(game)
 	case .Menu:
@@ -197,5 +192,10 @@ should_exit :: proc(game: Game) -> bool {
 
 speed_multiplier :: proc(game: Game) -> f32 {
 	return GAME_SPEED_INIT / game.speed
+}
+
+game_pause :: proc(game: ^Game) {
+	game.state = .Menu
+	game.menu.current_screen = .Pause
 }
 

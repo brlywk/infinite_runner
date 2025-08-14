@@ -1,7 +1,6 @@
 package game
 
 import "../global"
-import "core:log"
 import rl "vendor:raylib"
 
 menu_settings_init :: proc(width, height: f32) -> Menu_Content {
@@ -30,7 +29,6 @@ menu_settings_init :: proc(width, height: f32) -> Menu_Content {
 		// title
 		title_label := ui_label_create("Settings", ui_font_default, vec2_center(y), 16.0)
 		append(&widgets, title_label)
-		log.debugf("settings title label: height=%f", title_label.rect.height)
 		y += title_label.rect.height + spacer * 2
 
 		// help text at the bototm

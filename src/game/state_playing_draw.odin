@@ -20,7 +20,7 @@ playing_draw :: proc(game: ^Game) {
 	playing_draw_obstacles(game^)
 
 	// player
-	is_paused := game.state == .Paused
+	is_paused := game.state == .Menu && game.menu.current_screen == .Pause
 	player_draw(game.player, game^, is_paused)
 
 	// ui

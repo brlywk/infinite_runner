@@ -6,6 +6,7 @@ import rl "vendor:raylib"
 Menu_Screen :: enum {
 	Main,
 	Settings,
+	Pause,
 }
 
 Menu :: struct {
@@ -19,6 +20,7 @@ menu_init :: proc(width, height: f32) -> Menu {
 	contents := [Menu_Screen]Menu_Content {
 		.Main     = menu_main_init(width, height),
 		.Settings = menu_settings_init(width, height),
+		.Pause    = menu_pause_init(width, height),
 	}
 
 	music := global.get_asset(Music_Name.Main_Menu)
@@ -35,6 +37,7 @@ menu_init :: proc(width, height: f32) -> Menu {
 menu_destroy :: proc(menu: ^Menu) {
 	menu_content_destroy(&menu.contents[.Main])
 	menu_content_destroy(&menu.contents[.Settings])
+	menu_content_destroy(&menu.contents[.Pause])
 }
 
 

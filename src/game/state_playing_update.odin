@@ -12,7 +12,7 @@ NO_COLLISION :: #config(NO_COLLISION, false)
 playing_update :: proc(game: ^Game) {
 	// check for paused key being pressed (ESC)
 	if rl.IsKeyPressed(.ESCAPE) {
-		game.state = .Paused
+		game_pause(game)
 	}
 
 	// allow for instant restart

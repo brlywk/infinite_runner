@@ -86,16 +86,16 @@ menu_content_update :: proc(game: ^Game, menu_screen: Menu_Screen) {
 			}
 
 		case UI_Slider:
-			// decrease value
 			if rl.IsKeyPressed(.A) || rl.IsKeyPressed(.LEFT) || rl.IsKeyPressed(.H) {
 				w.decrement(&w)
 			} else if rl.IsKeyPressed(.D) || rl.IsKeyPressed(.RIGHT) || rl.IsKeyPressed(.L) {
-				w.increment(&w)
+				w.increment(&w, true)
 			} else {
 				ui_slider_unfocus(&w)
 			}
 
 		case UI_Label:
+		// nothing, absolutely nothing...
 		}
 	}
 
@@ -112,6 +112,11 @@ state_menu_draw_bg :: proc(game: ^Game) {
 
 	// building
 	playing_draw_building(game^)
+
+	// obstacles
+	if game.menu.current_screen == .Pause {
+		playing_draw_obstacles(game^)
+	}
 
 	// player
 	player_draw(game.player, game^)
