@@ -12,6 +12,7 @@ Menu_Content :: struct {
 	index_selected: int,
 	widgets:        [dynamic]UI_Widget,
 	custom_action:  UI_Callback,
+	music:          Music,
 }
 
 // NOTE: menu_*_init procs are specific to the menu (main, settings...)

@@ -48,5 +48,5 @@ game "finished" for the time being.
 ## Assets
 
 Not all assets used are free to use, some of them have been licensed (mostly through Humble Bundle
-sales over the years...). Please refer to the `readme.md` in the `assets/` folder for more information
+sales over the years...). Please refer to the [`readme.md`](./assets/readme.md) in the `assets/` folder for more information
 about which assets have been used and whether you can re-use them as-is.

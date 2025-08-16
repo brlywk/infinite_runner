@@ -12,7 +12,6 @@ Menu_Screen :: enum {
 Menu :: struct {
 	current_screen: Menu_Screen,
 	contents:       [Menu_Screen]Menu_Content,
-	music:          Music,
 }
 
 
@@ -23,12 +22,9 @@ menu_init :: proc(width, height: f32) -> Menu {
 		.Pause    = menu_pause_init(width, height),
 	}
 
-	music := global.get_asset(Music_Name.Main_Menu)
-
 	menu := Menu {
 		current_screen = .Main,
 		contents       = contents,
-		music          = music,
 	}
 
 	return menu
@@ -42,7 +38,7 @@ menu_destroy :: proc(menu: ^Menu) {
 
 
 menu_update :: proc(game: ^Game) {
-	menu_music := game.menu.music
+	menu_music := game.menu.contents[game.menu.current_screen].music
 
 	if !rl.IsMusicStreamPlaying(menu_music.rl_music) {
 		rl.PlayMusicStream(menu_music.rl_music)

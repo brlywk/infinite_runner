@@ -1,9 +1,10 @@
 package game
 
+import "../global"
 import "core:fmt"
 import "core:math/linalg"
-// import "core:log"
 import rl "vendor:raylib"
+
 
 game_over_draw :: proc(game: ^Game) {
 	death_animation_finished := player_get_animation(game.player).animation_finished
@@ -33,9 +34,22 @@ game_over_update :: proc(game: ^Game) {
 	// although everybode LOOOVES unskippable "cutscenes", let's be nice and allow
 	// players to do something before the death animation finishes
 
+	// keep game music playing
+	game_music := game.music_game
+
+	if !rl.IsMusicStreamPlaying(game_music.rl_music) {
+		rl.PlayMusicStream(game_music.rl_music)
+	} else {
+		music_volume := global.music_volume(game_music)
+		rl.SetMusicVolume(game_music.rl_music, music_volume)
+		rl.UpdateMusicStream(game_music.rl_music)
+	}
+
+
 	#partial switch rl.GetKeyPressed() {
 	case .R:
 		reset(game)
+		game.state = .Playing
 	case .M:
 		reset(game)
 		game.state = .Menu

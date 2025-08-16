@@ -3,6 +3,7 @@ package game
 import "../global"
 import rl "vendor:raylib"
 
+
 menu_settings_init :: proc(width, height: f32) -> Menu_Content {
 	widgets := make([dynamic]UI_Widget)
 
@@ -101,6 +102,7 @@ menu_settings_init :: proc(width, height: f32) -> Menu_Content {
 		index_selected = 0,
 		widgets        = widgets,
 		custom_action  = custom_action,
+		music          = global.get_asset(Music_Name.Main_Menu),
 	}
 
 	return menu

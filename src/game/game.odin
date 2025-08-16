@@ -21,6 +21,7 @@ Game :: struct {
 	speed:             f32,
 	last_increase:     f32,
 	state:             Game_State,
+	prev_state:        Game_State,
 	distance:          i32,
 	started:           f64,
 	game_time:         f64,
@@ -37,6 +38,9 @@ Game :: struct {
 
 	// menu
 	menu:              Menu,
+
+	// music
+	music_game:        Music,
 }
 
 Background :: struct {
@@ -76,6 +80,7 @@ create :: proc(width, height: i32) -> Game {
 		screen_width = width,
 		screen_height = height,
 		state = GAME_INITIAL_STATE,
+		prev_state = GAME_INITIAL_STATE,
 		speed = GAME_SPEED_INIT,
 		distance = 0,
 		started = started,
@@ -105,6 +110,9 @@ create :: proc(width, height: i32) -> Game {
 
 		// menu
 		menu = menu_init(f32(width), f32(height)),
+
+		// music (note: menu music is part of Menu_Content)
+		music_game = global.get_asset(Music_Name.InGame),
 	}
 
 	// spawn some initial stuff
@@ -139,6 +147,13 @@ init_spawn :: proc(game: ^Game) {
 reset :: proc(game: ^Game) {
 	destroy(game)
 	game^ = create(game.screen_width, game.screen_height)
+
+	// reset music
+	for i in 0 ..< len(Music_Name) {
+		music_name := Music_Name(i)
+		music := global.get_asset(music_name)
+		rl.SeekMusicStream(music.rl_music, 0)
+	}
 }
 
 // Destroys the main game struct, de-allocating all the things.

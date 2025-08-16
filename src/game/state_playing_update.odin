@@ -1,5 +1,6 @@
 package game
 
+import "../global"
 import "core:log"
 import "core:math"
 import rl "vendor:raylib"
@@ -13,6 +14,17 @@ playing_update :: proc(game: ^Game) {
 	// check for paused key being pressed (ESC)
 	if rl.IsKeyPressed(.ESCAPE) {
 		game_pause(game)
+	}
+
+	// music!
+	game_music := game.music_game
+
+	if !rl.IsMusicStreamPlaying(game_music.rl_music) {
+		rl.PlayMusicStream(game_music.rl_music)
+	} else {
+		music_volume := global.music_volume(game_music)
+		rl.SetMusicVolume(game_music.rl_music, music_volume)
+		rl.UpdateMusicStream(game_music.rl_music)
 	}
 
 	// allow for instant restart

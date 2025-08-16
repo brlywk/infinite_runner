@@ -1,5 +1,6 @@
 package game
 
+import "../global"
 import rl "vendor:raylib"
 
 
@@ -89,6 +90,7 @@ menu_pause_init :: proc(width, height: f32) -> Menu_Content {
 		index_selected = 0,
 		widgets        = widgets,
 		custom_action  = custom_action,
+		music          = global.get_asset(Music_Name.InGame),
 	}
 
 	return menu

@@ -1,5 +1,8 @@
 package game
 
+import "../global"
+import rl "vendor:raylib"
+
 menu_main_init :: proc(width, height: f32) -> Menu_Content {
 	widgets := make([dynamic]UI_Widget)
 
@@ -56,6 +59,7 @@ menu_main_init :: proc(width, height: f32) -> Menu_Content {
 				"Start",
 				Rect{x, y, UI_BUTTON_WIDTH, UI_BUTTON_HEIGHT},
 				proc(game: ^Game) {
+					game.started = rl.GetTime()
 					game.state = .Playing
 				},
 				button_font,
@@ -91,6 +95,10 @@ menu_main_init :: proc(width, height: f32) -> Menu_Content {
 		)
 	}
 
-	return Menu_Content{index_selected = 0, widgets = widgets}
+	return Menu_Content {
+		index_selected = 0,
+		widgets = widgets,
+		music = global.get_asset(Music_Name.Main_Menu),
+	}
 }
 
